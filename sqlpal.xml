@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mysqlpal>
+    <username value="root"/>
+    <password value="123456"/>
+    <host value="localhost"/>
+    <port value="3306"/>
+    <dbname value="test"/>
+    <encoding value="utf-8"/>
+</mysqlpal>
