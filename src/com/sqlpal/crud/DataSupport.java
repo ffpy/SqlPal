@@ -1,7 +1,8 @@
 package com.sqlpal.crud;
 
 import com.sqlpal.SqlPal;
-import com.sqlpal.bean.SplitFields;
+import com.sqlpal.exception.DataSupportException;
+import com.sqlpal.exception.MissPrimaryKeyException;
 import com.sqlpal.exception.SqlPalException;
 import com.sqlpal.bean.FieldBean;
 import com.sqlpal.manager.PreparedStatementBuilder;
@@ -12,11 +13,12 @@ import com.sqlpal.util.SqlSentenceUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class DataSupport {
     private String tableName;
-    private FieldManager fieldManager = new FieldManager(this);
+    private static FieldManager fieldManager = new FieldManager();
 
     /**
      * 获取表名
@@ -30,7 +32,7 @@ public abstract class DataSupport {
 
     private Connection getConnection() throws SqlPalException {
         Connection conn = SqlPal.getConnection();
-        if (conn == null) throw new SqlPalException("获取Connection失败，请先执行begin方法！");
+        if (conn == null) throw new DataSupportException("获取Connection失败，请先执行begin方法！");
         return conn;
     }
 
@@ -38,7 +40,7 @@ public abstract class DataSupport {
      * 保存
      */
     public void save() throws SqlPalException {
-        List<FieldBean> list = fieldManager.getAllFields();
+        List<FieldBean> list = fieldManager.getAllFields(this);
         if (list.isEmpty()) return;
 
         try {
@@ -49,7 +51,7 @@ public abstract class DataSupport {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
-            throw new SqlPalException("操作数据库出错！", e);
+            throw new DataSupportException("操作数据库出错！", e);
         }
     }
 
@@ -57,9 +59,9 @@ public abstract class DataSupport {
      * 删除
      */
     public int delete() throws SqlPalException {
-        List<FieldBean> list = fieldManager.getPrimaryKeyFields();
+        List<FieldBean> list = fieldManager.getPrimaryKeyFields(this);
         if (list.isEmpty()) {
-            throw new SqlPalException("找不到主键，请用PrimaryKey注解来指定主键！");
+            throw new MissPrimaryKeyException();
         }
 
         try {
@@ -71,7 +73,7 @@ public abstract class DataSupport {
             ps.close();
             return rows;
         } catch (SQLException e) {
-            throw new SqlPalException("操作数据库出错！", e);
+            throw new DataSupportException("操作数据库出错！", e);
         }
     }
 
@@ -79,23 +81,25 @@ public abstract class DataSupport {
      * 更新
      */
     public int update() throws SqlPalException {
-        SplitFields splitFields = fieldManager.getSplitFields();
-        if (splitFields.getPrimaryKeyFields().isEmpty()) {
-            throw new SqlPalException("找不到主键，请用PrimaryKey注解来指定主键！");
+        ArrayList<FieldBean> primaryKeyFields = new ArrayList<>();
+        ArrayList<FieldBean> updatedFields = new ArrayList<>();
+        fieldManager.getFields(this, primaryKeyFields, updatedFields);
+        if (primaryKeyFields.isEmpty()) {
+            throw new MissPrimaryKeyException();
         }
-        if (splitFields.getOrdinaryFields().isEmpty()) return 0;
+        if (updatedFields.isEmpty()) return 0;
 
         try {
-            String sql = SqlSentenceUtils.update(getTableName(), splitFields.getPrimaryKeyFields(), splitFields.getOrdinaryFields());
+            String sql = SqlSentenceUtils.update(getTableName(), primaryKeyFields, updatedFields);
             PreparedStatement ps = new PreparedStatementBuilder(getConnection(), sql)
-                    .addValues(splitFields.getPrimaryKeyFields())
-                    .addValues(splitFields.getOrdinaryFields())
+                    .addValues(updatedFields)
+                    .addValues(primaryKeyFields)
                     .build();
             int row = ps.executeUpdate();
             ps.close();
             return row;
         } catch (SQLException e) {
-            throw new SqlPalException("操作数据库出错！", e);
+            throw new DataSupportException("操作数据库出错！", e);
         }
     }
 }

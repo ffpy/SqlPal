@@ -2,7 +2,6 @@ package com.sqlpal.manager;
 
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.bean.FieldBean;
-import com.sqlpal.bean.SplitFields;
 import com.sqlpal.exception.SqlPalException;
 import com.sun.istack.internal.NotNull;
 
@@ -16,41 +15,74 @@ import java.util.List;
  * 字段管理器
  */
 public class FieldManager {
-    private Object modelObject;
-
-    public FieldManager(@NotNull Object modelObject) {
-        this.modelObject = modelObject;
-    }
+    private ArrayList<String> primaryKeyNameCache;  // 主键名缓存
 
     /**
      * 检查字段类型是不是支持的类型
      */
-    private boolean checkFieldType(Object obj) {
-        if (    obj instanceof Integer || obj instanceof Short || obj instanceof Long ||
+    private boolean isSupportedField(Object obj) {
+        return  obj instanceof Integer || obj instanceof Short || obj instanceof Long ||
                 obj instanceof Float || obj instanceof Double || obj instanceof String ||
-                obj instanceof Date) {
-            return true;
-        }
-        return false;
+                obj instanceof Date;
     }
 
     /**
-     * 获取字段
+     * 判断是不是主键字段
      */
-    private List<FieldBean> getFields(Filter filter) throws SqlPalException {
-        ArrayList<FieldBean> list = new ArrayList<>();
+    private boolean isPrimaryKeyField(Field field) {
+        return field.getAnnotation(PrimaryKey.class) != null;
+    }
+
+    /**
+     * 遍历字段
+     */
+    private void listFields(Object modelObject, @NotNull FieldListListener fieldListListener) throws SqlPalException {
         Field[] fields = modelObject.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (field.getModifiers() != Modifier.PRIVATE) continue;
             field.setAccessible(true);
-            if (filter == null || !filter.filter(field)) {
-                String name = field.getName();
+            if (field.getModifiers() != Modifier.PRIVATE) continue;
+            try {
+                Object obj = field.get(modelObject);
+                if (isSupportedField(obj)) {
+                    fieldListListener.onList(field, field.getName(), obj);
+                }
+            } catch (IllegalAccessException e) {
+                throw new SqlPalException("读取字段失败！", e);
+            }
+        }
+    }
+
+    /**
+     * 获取所有字段
+     */
+    public List<FieldBean> getAllFields(Object modelObject) throws SqlPalException {
+        ArrayList<FieldBean> list = new ArrayList<>();
+        listFields(modelObject, (field, name, obj) -> list.add(new FieldBean(name, obj)));
+        return list;
+    }
+
+    /**
+     * 获取主键字段
+     */
+    public List<FieldBean> getPrimaryKeyFields(Object modelObject) throws SqlPalException {
+        ArrayList<FieldBean> list = new ArrayList<>();
+        if (primaryKeyNameCache == null) {
+            primaryKeyNameCache = new ArrayList<>();
+            listFields(modelObject, (field, name, obj) -> {
+                if (isPrimaryKeyField(field)) {
+                    list.add(new FieldBean(field.getName(), obj));
+                    primaryKeyNameCache.add(field.getName());
+                }
+            });
+        } else {
+            Class<?> cls = modelObject.getClass();
+            for (String name : primaryKeyNameCache) {
                 try {
+                    Field field = cls.getDeclaredField(name);
+                    field.setAccessible(true);
                     Object obj = field.get(modelObject);
-                    if (checkFieldType(obj)) {
-                        list.add(new FieldBean(name, obj));
-                    }
-                } catch (IllegalAccessException e) {
+                    list.add(new FieldBean(field.getName(), obj));
+                } catch (NoSuchFieldException | IllegalAccessException e) {
                     throw new SqlPalException("读取字段失败！", e);
                 }
             }
@@ -59,44 +91,25 @@ public class FieldManager {
     }
 
     /**
-     * 获取所有字段
+     * 获取字段
+     * @param modelObject model对象
+     * @param primaryKeyFields 主键字段
+     * @param notPrimaryKeyFields 非主键字段
      */
-    public List<FieldBean> getAllFields() throws SqlPalException {
-        return getFields(null);
-    }
-
-    /**
-     * 获取主键字段
-     */
-    public List<FieldBean> getPrimaryKeyFields() throws SqlPalException {
-        return getFields(field -> field.getAnnotation(PrimaryKey.class) == null);
-    }
-
-    /**
-     * 获取分开的字段
-     */
-    public SplitFields getSplitFields() throws SqlPalException {
-        List<FieldBean> primaryKeyFields = new ArrayList<>();
-        List<FieldBean> ordinaryFields;
-
-        ordinaryFields = getFields(field -> {
-            if (field.getAnnotation(PrimaryKey.class) != null) {
-                try {
-                    primaryKeyFields.add(new FieldBean(field.getName(), field.get(modelObject)));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                return true;
+    public void getFields(Object modelObject, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> notPrimaryKeyFields) throws SqlPalException {
+        listFields(modelObject, (field, name, obj) -> {
+            if (isPrimaryKeyField(field)) {
+                primaryKeyFields.add(new FieldBean(name, obj));
+            } else {
+                notPrimaryKeyFields.add(new FieldBean(name, obj));
             }
-            return false;
         });
-        return new SplitFields(primaryKeyFields, ordinaryFields);
     }
 
-    private interface Filter {
-        /**
-         * 返回true会被过滤掉
-         */
-        boolean filter(Field field);
+    /**
+     * 字段遍历接口
+     */
+    private interface FieldListListener {
+        void onList(Field field, String name, Object obj);
     }
 }

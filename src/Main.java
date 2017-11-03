@@ -9,8 +9,8 @@ public class Main {
             SqlPal.init();
             SqlPal.beginTransaction();
             User user = new User();
-            user.setUsername("aaa");
-            user.setPassword("456");
+            user.setUsername("bbb");
+            user.setPassword("123");
             user.update();
             SqlPal.endTransaction();
         } catch (SqlPalException e) {

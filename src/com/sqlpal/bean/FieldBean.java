@@ -1,5 +1,7 @@
 package com.sqlpal.bean;
 
+import java.lang.reflect.Field;
+
 public class FieldBean {
     private String name;
     private Object value;

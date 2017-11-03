@@ -1,5 +1,6 @@
 package com.sqlpal.manager;
 
+import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.exception.SqlPalException;
 import com.sqlpal.annotation.TableName;
 
@@ -25,7 +26,7 @@ public class TableNameManager {
                 tableName = annotation.name();
                 tableMap.put(className, tableName);
             } else {
-                throw new SqlPalException("获取表名失败，请为" + className + "添加TableName注解以指定表名！");
+                throw new DataSupportException("获取表名失败，请为" + className + "添加TableName注解以指定表名！");
             }
         }
         return tableName;
