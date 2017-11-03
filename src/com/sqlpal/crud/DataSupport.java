@@ -4,10 +4,10 @@ import com.sqlpal.SqlPal;
 import com.sqlpal.bean.SplitFields;
 import com.sqlpal.exception.SqlPalException;
 import com.sqlpal.bean.FieldBean;
+import com.sqlpal.manager.PreparedStatementBuilder;
 import com.sqlpal.manager.TableNameManager;
 import com.sqlpal.manager.FieldManager;
 import com.sqlpal.util.SqlSentenceUtils;
-import com.sqlpal.util.StatementUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,8 +43,9 @@ public abstract class DataSupport {
 
         try {
             String sql = SqlSentenceUtils.insert(getTableName(), list);
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            StatementUtils.setValues(ps, list);
+            PreparedStatement ps = new PreparedStatementBuilder(getConnection(), sql)
+                    .addValues(list)
+                    .build();
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -63,8 +64,9 @@ public abstract class DataSupport {
 
         try {
             String sql = SqlSentenceUtils.delete(getTableName(), list);
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            StatementUtils.setValues(ps, list);
+            PreparedStatement ps = new PreparedStatementBuilder(getConnection(), sql)
+                    .addValues(list)
+                    .build();
             int rows = ps.executeUpdate();
             ps.close();
             return rows;
@@ -85,10 +87,10 @@ public abstract class DataSupport {
 
         try {
             String sql = SqlSentenceUtils.update(getTableName(), splitFields.getPrimaryKeyFields(), splitFields.getOrdinaryFields());
-            System.out.println(sql);
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            StatementUtils.setValues(ps, splitFields.getOrdinaryFields());
-            StatementUtils.setValues(ps, splitFields.getPrimaryKeyFields(), splitFields.getOrdinaryFields().size() + 1);
+            PreparedStatement ps = new PreparedStatementBuilder(getConnection(), sql)
+                    .addValues(splitFields.getPrimaryKeyFields())
+                    .addValues(splitFields.getOrdinaryFields())
+                    .build();
             int row = ps.executeUpdate();
             ps.close();
             return row;
