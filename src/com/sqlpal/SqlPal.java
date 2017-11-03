@@ -15,11 +15,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SqlPal {
-    private static final String FILENAME = "sqlpal.xml";
+    private static final String CONFIG_FILENAME = "sqlpal.xml";    // 配置文件
 
     private static ConfigInfo config;
     private static Connection conn;
 
+    /**
+     * 初始化
+     * @throws SqlPalException
+     */
     public static void init() throws SqlPalException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -35,23 +39,30 @@ public class SqlPal {
         try {
             SAXParser parser = factory.newSAXParser();
             try {
-                parser.parse(new File(FILENAME), handler);
+                parser.parse(new File(CONFIG_FILENAME), handler);
                 config = handler.getConfig();
             } catch (IOException e) {
-                throw new SqlPalException("打开" + FILENAME + "失败，请确保把文件放在项目根目录！", e);
+                throw new SqlPalException("打开" + CONFIG_FILENAME + "失败，请确保把文件放在项目根目录！", e);
             } catch (SAXException e) {
-                throw new SqlPalException("解析" + FILENAME + "出错！", e);
+                throw new SqlPalException("解析" + CONFIG_FILENAME + "出错！", e);
             }
         } catch (ParserConfigurationException | SAXException e) {
             throw new SqlPalException("创建SAX解析器失败!", e);
         }
     }
 
+    /**
+     * 获取配置信息
+     */
     public static ConfigInfo getConfig() {
         return config;
     }
 
-    public static void begin() throws SqlPalException {
+    /**
+     * 开始事务
+     * @throws SqlPalException
+     */
+    public static void beginTransaction() throws SqlPalException {
         if (config == null) throw new SqlPalException("没有初始化！");
         if (conn != null) return;
         try {
@@ -61,7 +72,11 @@ public class SqlPal {
         }
     }
 
-    public static void end() throws SqlPalException {
+    /**
+     * 结束事务
+     * @throws SqlPalException
+     */
+    public static void endTransaction() throws SqlPalException {
         if (conn == null) return;
         try {
             conn.close();
@@ -71,6 +86,9 @@ public class SqlPal {
         conn = null;
     }
 
+    /**
+     * 获取数据库连接
+     */
     public static Connection getConnection() {
         return conn;
     }

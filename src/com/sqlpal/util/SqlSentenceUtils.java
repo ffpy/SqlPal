@@ -1,6 +1,7 @@
 package com.sqlpal.util;
 
 import com.sqlpal.bean.FieldBean;
+import com.sun.istack.internal.NotNull;
 
 import java.util.List;
 
@@ -15,25 +16,25 @@ public class SqlSentenceUtils {
      * @param list 要插入的字段列表
      * @return 返回插入语句
      */
-    public static String insert(String tableName, List<FieldBean> list) {
+    public static String insert(@NotNull String tableName, @NotNull List<FieldBean> list) {
         if (list.isEmpty()) return null;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO ").append(tableName).append("(");
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ").append(tableName).append("(");
 
         for (FieldBean bean : list) {
-            sb.append(bean.getName()).append(",");
+            sql.append(bean.getName()).append(",");
         }
-        sb.deleteCharAt(sb.length() - 1);
+        sql.deleteCharAt(sql.length() - 1);
 
-        sb.append(") VALUES(");
+        sql.append(") VALUES(");
         for (int i = 0; i < list.size(); i++) {
-            sb.append("?,");
+            sql.append("?,");
         }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(")");
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(")");
 
-        return sb.toString();
+        return sql.toString();
     }
 
     /**
@@ -42,7 +43,7 @@ public class SqlSentenceUtils {
      * @param list 要查找的字段列表，用and连接
      * @return 返回删除语句
      */
-    public static String delete(String tableName, List<FieldBean> list) {
+    public static String delete(@NotNull String tableName, @NotNull List<FieldBean> list) {
         if (list.isEmpty()) return null;
         StringBuilder where = new StringBuilder();
         for (FieldBean bean : list) {
@@ -59,9 +60,35 @@ public class SqlSentenceUtils {
      * @param where where条件
      * @return 返回删除语句
      */
-    public static String delete(String tableName, String where) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ").append(tableName).append(" WHERE ").append(where);
-        return sb.toString();
+    public static String delete(@NotNull String tableName, @NotNull String where) {
+        if (where.isEmpty()) return null;
+        return "DELETE FROM " + tableName + " WHERE " + where;
+    }
+
+    /**
+     * 创建更新语句
+     * @param tableName 表名
+     * @param primaryKeyFields 主键字段
+     * @param updatedFields 要更新的字段
+     * @return 返回更新语句
+     */
+    public static String update(@NotNull String tableName, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> updatedFields) {
+        if (primaryKeyFields.isEmpty() || updatedFields.isEmpty()) return null;
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ").append(tableName).append(" SET ");
+
+        for (FieldBean bean : updatedFields) {
+            sql.append(bean.getName()).append("=? and ");
+        }
+        sql.delete(sql.length() - 5, sql.length());
+
+        sql.append(" WHERE ");
+        for (FieldBean bean : primaryKeyFields) {
+            sql.append(bean.getName()).append("=? and ");
+        }
+        sql.delete(sql.length() - 5, sql.length());
+
+        return sql.toString();
     }
 }

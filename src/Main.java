@@ -7,12 +7,12 @@ public class Main {
     public static void main(String[] args) {
         try {
             SqlPal.init();
-            SqlPal.begin();
+            SqlPal.beginTransaction();
             User user = new User();
             user.setUsername("aaa");
-            user.setPassword("123");
-            user.delete();
-            SqlPal.end();
+            user.setPassword("456");
+            user.update();
+            SqlPal.endTransaction();
         } catch (SqlPalException e) {
             e.printStackTrace();
         }
