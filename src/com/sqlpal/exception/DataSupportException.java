@@ -3,7 +3,7 @@ package com.sqlpal.exception;
 /**
  * 数据操作异常
  */
-public class DataSupportException extends SqlPalException {
+public class DataSupportException extends Exception {
 
     public DataSupportException() {
     }
@@ -16,7 +16,7 @@ public class DataSupportException extends SqlPalException {
         super(cause);
     }
 
-    public DataSupportException(String message, Exception exception) {
-        super(message, exception);
+    public DataSupportException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

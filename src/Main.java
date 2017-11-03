@@ -1,5 +1,5 @@
 import com.sqlpal.SqlPal;
-import com.sqlpal.exception.SqlPalException;
+import com.sqlpal.exception.DataSupportException;
 import entity.User;
 
 public class Main {
@@ -7,13 +7,14 @@ public class Main {
     public static void main(String[] args) {
         try {
             SqlPal.init();
-            SqlPal.beginTransaction();
+
             User user = new User();
-            user.setUsername("bbb");
+            user.setUsername("abc");
             user.setPassword("123");
-            user.update();
-            SqlPal.endTransaction();
-        } catch (SqlPalException e) {
+            user.save();
+
+            SqlPal.destroy();
+        } catch (DataSupportException e) {
             e.printStackTrace();
         }
     }

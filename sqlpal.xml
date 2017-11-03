@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<mysqlpal>
+<sqlpal>
+    <driver value="com.mysql.jdbc.Driver"/>
     <username value="root"/>
     <password value="123456"/>
     <host value="localhost"/>
     <port value="3306"/>
     <dbname value="test"/>
     <encoding value="utf-8"/>
-</mysqlpal>
+    <initSize value="1"/>
+    <maxSize value="10"/>
+    <maxWait value="30"/>
+    <list>
+        <mapping class="entity.User"/>
+    </list>
+</sqlpal>

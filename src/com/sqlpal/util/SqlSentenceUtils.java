@@ -91,4 +91,13 @@ public class SqlSentenceUtils {
 
         return sql.toString();
     }
+
+    /**
+     * 创建查找语句
+     * @param tableName 表名
+     * @return 返回查找语句
+     */
+    public static String findAll(@NotNull String tableName) {
+        return "SELECT * FROM " + tableName;
+    }
 }

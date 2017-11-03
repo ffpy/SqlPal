@@ -1,4 +1,4 @@
-package com.sqlpal.manager;
+package com.sqlpal.builder;
 
 import com.sqlpal.bean.FieldBean;
 
