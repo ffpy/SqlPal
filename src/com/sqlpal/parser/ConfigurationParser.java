@@ -23,7 +23,7 @@ public class ConfigurationParser extends DefaultHandler {
             case "encoding": configuration.setEncoding(attributes.getValue("value")); break;
             case "initSize": configuration.setInitSize(Integer.parseInt(attributes.getValue("value"))); break;
             case "maxSize": configuration.setMaxSize(Integer.parseInt(attributes.getValue("value"))); break;
-            case "maxWati": configuration.setMaxWati(Integer.parseInt(attributes.getValue("value"))); break;
+            case "maxWati": configuration.setMaxWait(Integer.parseInt(attributes.getValue("value"))); break;
             case "mapping": configuration.getMapping().add(attributes.getValue("class")); break;
         }
     }

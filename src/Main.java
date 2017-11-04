@@ -17,12 +17,12 @@ public class Main {
             for (int i = 0; i < 10000; i++) {
                 User user = new User();
                 user.setUsername("user" + i);
-                user.setPassword("pwd" + i);
+                user.setPassword("pwd" + i + "-updated");
 //                user.save();
                 users.add(user);
             }
 
-            DataSupport.saveAll(users);
+            DataSupport.updateAll(users);
 
             t = System.currentTimeMillis() - t;
             System.out.println(t + "ms");

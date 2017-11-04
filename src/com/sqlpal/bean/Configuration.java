@@ -12,7 +12,8 @@ public class Configuration {
     private String encoding;            // 编码
     private int initSize;               // 连接池初始数量
     private int maxSize;                // 连接池最大数量
-    private int maxWati;                // 最长等待时间
+    private int maxWait;                // 最长等待时间
+    private int maxBatchCount = 10000;  // 批处理最大数量
     private ArrayList<String> mapping = new ArrayList<>();  // mapping列表
     private String url;
 
@@ -89,11 +90,19 @@ public class Configuration {
     }
 
     public int getMaxWait() {
-        return maxWati;
+        return maxWait;
     }
 
-    public void setMaxWati(int maxWati) {
-        this.maxWati = maxWati;
+    public void setMaxWait(int maxWait) {
+        this.maxWait = maxWait;
+    }
+
+    public int getMaxBatchCount() {
+        return maxBatchCount;
+    }
+
+    public void setMaxBatchCount(int maxBatchCount) {
+        this.maxBatchCount = maxBatchCount;
     }
 
     public ArrayList<String> getMapping() {

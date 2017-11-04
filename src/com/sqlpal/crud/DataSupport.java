@@ -47,6 +47,13 @@ public abstract class DataSupport {
     }
 
     /**
+     * 更新所有
+     */
+    public static void updateAll(List<? extends DataSupport> models) throws DataSupportException {
+        UpdateHandler.updateAll(models);
+    }
+
+    /**
      * 查询所有
      */
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {

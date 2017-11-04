@@ -2,6 +2,7 @@ package com.sqlpal.crud;
 
 import com.sqlpal.bean.FieldBean;
 import com.sqlpal.exception.DataSupportException;
+import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.util.DBUtils;
@@ -14,7 +15,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SaveHandler {
-    private static final int MAX_BATCH_NUM = 5000;  // 最大批处理数量
 
     static void save(@NotNull DataSupport model) throws DataSupportException {
         List<FieldBean> fields = ModelManager.getAllFields(model);
@@ -46,6 +46,7 @@ class SaveHandler {
             conn.setAutoCommit(false);
 
             int batchCount = 0;
+            final int maxBatchCount = ConfigurationManager.getConfiguration().getMaxBatchCount();
             for (DataSupport model : models) {
                 List<FieldBean> fields = ModelManager.getAllFields(model);
                 if (fields.isEmpty()) continue;
@@ -59,12 +60,14 @@ class SaveHandler {
                 stmt.addValues(fields);
                 stmt.addBatch();
 
-                if (++batchCount % MAX_BATCH_NUM == 0) {
+                if (++batchCount % maxBatchCount == 0) {
                     stmt.executeBatch();
                 }
             }
 
-            stmt.executeBatch();
+            if (stmt != null) {
+                stmt.executeBatch();
+            }
             conn.commit();
             conn.setAutoCommit(true);
         } catch (SQLException e) {
