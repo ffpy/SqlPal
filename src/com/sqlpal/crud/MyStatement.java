@@ -1,27 +1,44 @@
-package com.sqlpal.builder;
+package com.sqlpal.crud;
 
 import com.sqlpal.bean.FieldBean;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-public class PreparedStatementBuilder {
+public class MyStatement {
     private int paramIndex = 1;
     private PreparedStatement statement;
 
-    public PreparedStatementBuilder(Connection conn, String sql) throws SQLException {
+    public MyStatement(Connection conn, String sql) throws SQLException {
         statement = conn.prepareStatement(sql);
+    }
+
+    public void addBatch() throws SQLException {
+        paramIndex = 1;
+        statement.addBatch();
+    }
+
+    public int[] executeBatch() throws SQLException {
+        return statement.executeBatch();
+    }
+
+    public int executeUpdate() throws SQLException {
+        return statement.executeUpdate();
+    }
+
+    public ResultSet executeQuery() throws SQLException {
+        return statement.executeQuery();
     }
 
     /**
      * 添加字段参数
      * @param list 字段列表
-     * @return 返回自身
      */
-    public PreparedStatementBuilder addValues(List<FieldBean> list) throws SQLException {
+    public MyStatement addValues(List<FieldBean> list) throws SQLException {
         for (FieldBean bean : list) {
             Object obj = bean.getValue();
             if (obj == null) continue;
@@ -53,9 +70,8 @@ public class PreparedStatementBuilder {
     /**
      * 添加字符串参数
      * @param values 字符串数组
-     * @return 返回自身
      */
-    public PreparedStatementBuilder addValues(String[] values) throws SQLException {
+    public MyStatement addValues(String[] values) throws SQLException {
         return addValues(values, 0, values.length);
     }
 
@@ -63,9 +79,8 @@ public class PreparedStatementBuilder {
      * 添加字符串参数
      * @param values 字符串数组
      * @param start 从start下标开始
-     * @return 返回自身
      */
-    public PreparedStatementBuilder addValues(String[] values, int start) throws SQLException {
+    public MyStatement addValues(String[] values, int start) throws SQLException {
         return addValues(values, start, values.length - start);
     }
 
@@ -74,9 +89,8 @@ public class PreparedStatementBuilder {
      * @param values 字符串数组
      * @param start 从start下标开始
      * @param length 长度
-     * @return 返回自身
      */
-    public PreparedStatementBuilder addValues(String[] values, int start, int length) throws SQLException {
+    public MyStatement addValues(String[] values, int start, int length) throws SQLException {
         int end = start + length;
         for (int i = start; i < end; i++) {
             statement.setString(paramIndex++, values[i]);
@@ -84,10 +98,7 @@ public class PreparedStatementBuilder {
         return this;
     }
 
-    /**
-     * 获取PrepareStatement
-     */
-    public PreparedStatement build() {
+    public PreparedStatement getStatement() {
         return statement;
     }
 }

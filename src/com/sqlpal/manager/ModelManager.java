@@ -90,16 +90,18 @@ public class ModelManager {
     }
 
     /**
-     * 遍历字段
+     * 遍历非null字段
      */
-    private static void listFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) throws DataSupportException {
+    private static void listNotNullFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) throws DataSupportException {
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             if (!isSupportedField(field)) continue;
             try {
                 Object obj = field.get(model);
-                fieldListCallback.onList(field, field.getName(), obj);
+                if (obj != null) {
+                    fieldListCallback.onList(field, field.getName(), obj);
+                }
             } catch (IllegalAccessException e) {
                 throw new DataSupportException("读取字段失败！", e);
             }
@@ -111,7 +113,7 @@ public class ModelManager {
      */
     public static List<FieldBean> getAllFields(@NotNull DataSupport model) throws DataSupportException {
         ArrayList<FieldBean> list = new ArrayList<>();
-        listFields(model, (field, name, obj) -> list.add(new FieldBean(name, obj)));
+        listNotNullFields(model, (field, name, obj) -> list.add(new FieldBean(name, obj)));
         return list;
     }
 
@@ -144,7 +146,7 @@ public class ModelManager {
      * @param notPrimaryKeyFields 非主键字段
      */
     public static void getFields(@NotNull DataSupport model, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> notPrimaryKeyFields) throws DataSupportException {
-        listFields(model, (field, name, obj) -> {
+        listNotNullFields(model, (field, name, obj) -> {
             if (isPrimaryKeyField(field)) {
                 primaryKeyFields.add(new FieldBean(name, obj));
             } else {

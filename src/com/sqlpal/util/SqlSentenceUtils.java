@@ -14,22 +14,22 @@ public class SqlSentenceUtils {
     /**
      * 创建插入语句
      * @param tableName 表名
-     * @param list 要插入的字段列表
+     * @param fields 要插入的字段列表
      * @return 返回插入语句
      */
-    public static String insert(@NotNull String tableName, @NotNull List<FieldBean> list) {
-        if (StringUtils.isEmpty(tableName) || list.isEmpty()) return "";
+    public static String insert(@NotNull String tableName, @NotNull List<FieldBean> fields) {
+        if (StringUtils.isEmpty(tableName) || fields.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO ").append(tableName).append("(");
 
-        for (FieldBean bean : list) {
+        for (FieldBean bean : fields) {
             sql.append(bean.getName()).append(",");
         }
         sql.deleteCharAt(sql.length() - 1);
 
         sql.append(") VALUES(");
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < fields.size(); i++) {
             sql.append("?,");
         }
         sql.deleteCharAt(sql.length() - 1);
@@ -41,13 +41,13 @@ public class SqlSentenceUtils {
     /**
      * 创建删除语句
      * @param tableName 表名
-     * @param list 要查找的字段列表，用and连接
+     * @param fields 要查找的字段列表，用and连接
      * @return 返回删除语句
      */
-    public static String delete(@NotNull String tableName, @NotNull List<FieldBean> list) {
-        if (StringUtils.isEmpty(tableName) || list.isEmpty()) return "";
+    public static String delete(@NotNull String tableName, @NotNull List<FieldBean> fields) {
+        if (StringUtils.isEmpty(tableName) || fields.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
-        for (FieldBean bean : list) {
+        for (FieldBean bean : fields) {
             where.append(bean.getName()).append("=? and ");
         }
         where.delete(where.length() - 5, where.length());

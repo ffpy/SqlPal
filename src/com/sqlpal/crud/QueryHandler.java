@@ -1,6 +1,5 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.builder.PreparedStatementBuilder;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
@@ -26,17 +25,15 @@ class QueryHandler {
         String tableName = TableNameManager.getTableName(modelClass);
         List<T> list = new ArrayList<>();
         Connection conn = null;
-        PreparedStatement stmt = null;
+        MyStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = ConnectionManager.getConnection();
             String sql = SqlSentenceUtils.find(tableName, columns, conditions, orderBy, limit, offset);
-            System.out.println(sql);
-            PreparedStatementBuilder builder = new PreparedStatementBuilder(conn, sql);
+            stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
-                builder.addValues(conditions, 1);
+                stmt.addValues(conditions, 1);
             }
-            stmt = builder.build();
             rs = stmt.executeQuery();
 
             while (rs.next()) {

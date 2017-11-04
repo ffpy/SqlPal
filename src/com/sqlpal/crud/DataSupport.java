@@ -40,6 +40,13 @@ public abstract class DataSupport {
     }
 
     /**
+     * 保存所有
+     */
+    public static void saveAll(List<? extends DataSupport> models) throws DataSupportException {
+        SaveHandler.saveAll(models);
+    }
+
+    /**
      * 查询所有
      */
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {
