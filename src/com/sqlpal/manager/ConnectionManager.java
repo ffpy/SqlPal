@@ -163,15 +163,4 @@ public class ConnectionManager {
     private synchronized static void addWaitThread(@NotNull Thread thread) {
         waitingThreads.addLast(thread);
     }
-
-    /**
-     * 关闭事务
-     */
-    public static void closeStatement(Statement stmt) {
-        if (stmt != null) try {
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }

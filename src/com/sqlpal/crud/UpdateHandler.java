@@ -4,7 +4,8 @@ import com.sqlpal.bean.FieldBean;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.builder.PreparedStatementBuilder;
 import com.sqlpal.manager.ConnectionManager;
-import com.sqlpal.manager.FieldManager;
+import com.sqlpal.manager.ModelManager;
+import com.sqlpal.util.DBUtils;
 import com.sqlpal.util.SqlSentenceUtils;
 
 import java.sql.Connection;
@@ -17,7 +18,7 @@ class UpdateHandler {
     static int update(DataSupport model) throws DataSupportException {
         ArrayList<FieldBean> primaryKeyFields = new ArrayList<>();
         ArrayList<FieldBean> updatedFields = new ArrayList<>();
-        FieldManager.getFields(model, primaryKeyFields, updatedFields);
+        ModelManager.getFields(model, primaryKeyFields, updatedFields);
         if (updatedFields.isEmpty()) return 0;
 
         Connection conn = null;
@@ -33,7 +34,7 @@ class UpdateHandler {
         } catch (SQLException e) {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
-            ConnectionManager.closeStatement(ps);
+            DBUtils.close(ps);
             ConnectionManager.freeConnection(conn);
         }
     }

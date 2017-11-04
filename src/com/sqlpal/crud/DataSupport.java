@@ -45,4 +45,24 @@ public abstract class DataSupport {
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {
         return QueryHandler.findAll(modelClass);
     }
+
+    public static ClusterQuery select(String... columns) {
+        return new ClusterQuery().select(columns);
+    }
+
+    public static ClusterQuery where(String... conditions) {
+        return new ClusterQuery().where(conditions);
+    }
+
+    public static ClusterQuery order(String column) {
+        return new ClusterQuery().order(column);
+    }
+
+    public static ClusterQuery limit(int value) {
+        return new ClusterQuery().limit(value);
+    }
+
+    public static ClusterQuery offset(int value) {
+        return new ClusterQuery().offset(value);
+    }
 }

@@ -11,14 +11,16 @@ import com.sun.istack.internal.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * 字段管理器
+ * 模型管理器
  */
-public class FieldManager {
+public class ModelManager {
     private static HashMap<String, ArrayList<String>> primaryKeyNamesMap;   // 主键名
 
     /**
@@ -90,7 +92,7 @@ public class FieldManager {
     /**
      * 遍历字段
      */
-    private static void listFields(DataSupport model, @NotNull FieldListCallback fieldListCallback) throws DataSupportException {
+    private static void listFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) throws DataSupportException {
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -107,7 +109,7 @@ public class FieldManager {
     /**
      * 获取所有字段
      */
-    public static List<FieldBean> getAllFields(DataSupport model) throws DataSupportException {
+    public static List<FieldBean> getAllFields(@NotNull DataSupport model) throws DataSupportException {
         ArrayList<FieldBean> list = new ArrayList<>();
         listFields(model, (field, name, obj) -> list.add(new FieldBean(name, obj)));
         return list;
@@ -116,7 +118,7 @@ public class FieldManager {
     /**
      * 获取主键字段
      */
-    public static List<FieldBean> getPrimaryKeyFields(DataSupport model) throws DataSupportException {
+    public static List<FieldBean> getPrimaryKeyFields(@NotNull DataSupport model) throws DataSupportException {
         ArrayList<FieldBean> list = new ArrayList<>();
         Class<? extends DataSupport> cls = model.getClass();
         for (String name : getPrimaryKeyNames(cls)) {
@@ -141,7 +143,7 @@ public class FieldManager {
      * @param primaryKeyFields 主键字段
      * @param notPrimaryKeyFields 非主键字段
      */
-    public static void getFields(DataSupport model, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> notPrimaryKeyFields) throws DataSupportException {
+    public static void getFields(@NotNull DataSupport model, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> notPrimaryKeyFields) throws DataSupportException {
         listFields(model, (field, name, obj) -> {
             if (isPrimaryKeyField(field)) {
                 primaryKeyFields.add(new FieldBean(name, obj));
@@ -149,6 +151,50 @@ public class FieldManager {
                 notPrimaryKeyFields.add(new FieldBean(name, obj));
             }
         });
+    }
+
+    /**
+     * 根据结果集实例化一个model
+     */
+    public static <T extends DataSupport> T instance(@NotNull Class<? extends DataSupport> modelClass, @NotNull ResultSet rs) throws DataSupportException {
+        try {
+            T model = (T) modelClass.newInstance();
+            ModelManager.setFields(model, rs);
+            return model;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new DataSupportException("实例化Model对象出错", e);
+        }
+    }
+
+    /**
+     * 设置字段值
+     * @param model model对象
+     * @param rs 结果集
+     */
+    public static void setFields(@NotNull DataSupport model, @NotNull ResultSet rs) throws DataSupportException {
+        Field[] fields = model.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (!isSupportedField(field)) continue;
+            String columnName = field.getName();
+            try {
+                Object value = null;
+                switch (field.getGenericType().getTypeName()) {
+                    case "java.lang.Integer": value = rs.getInt(columnName);break;
+                    case "java.lang.Short": value = rs.getShort(columnName); break;
+                    case "java.lang.Long": value = rs.getLong(columnName); break;
+                    case "java.lang.Float": value = rs.getFloat(columnName); break;
+                    case "java.lang.Double": value = rs.getDouble(columnName); break;
+                    case "java.lang.String": value = rs.getString(columnName); break;
+                    case "java.util.Date": value = rs.getDate(columnName); break;
+                }
+
+                field.set(model, value);
+            } catch (SQLException ignored) {
+            } catch (IllegalAccessException e) {
+                throw new DataSupportException("设置字段值出错", e);
+            }
+        }
     }
 
     /**

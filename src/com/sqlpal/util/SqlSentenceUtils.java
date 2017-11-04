@@ -2,6 +2,7 @@ package com.sqlpal.util;
 
 import com.sqlpal.bean.FieldBean;
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class SqlSentenceUtils {
      * @return 返回插入语句
      */
     public static String insert(@NotNull String tableName, @NotNull List<FieldBean> list) {
-        if (list.isEmpty()) return null;
+        if (StringUtils.isEmpty(tableName) || list.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO ").append(tableName).append("(");
@@ -44,7 +45,7 @@ public class SqlSentenceUtils {
      * @return 返回删除语句
      */
     public static String delete(@NotNull String tableName, @NotNull List<FieldBean> list) {
-        if (list.isEmpty()) return null;
+        if (StringUtils.isEmpty(tableName) || list.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
         for (FieldBean bean : list) {
             where.append(bean.getName()).append("=? and ");
@@ -61,7 +62,7 @@ public class SqlSentenceUtils {
      * @return 返回删除语句
      */
     public static String delete(@NotNull String tableName, @NotNull String where) {
-        if (where.isEmpty()) return null;
+        if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(where)) return "";
         return "DELETE FROM " + tableName + " WHERE " + where;
     }
 
@@ -73,7 +74,7 @@ public class SqlSentenceUtils {
      * @return 返回更新语句
      */
     public static String update(@NotNull String tableName, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> updatedFields) {
-        if (primaryKeyFields.isEmpty() || updatedFields.isEmpty()) return null;
+        if (StringUtils.isEmpty(tableName) || ListUtils.isEmpty(primaryKeyFields) || ListUtils.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(tableName).append(" SET ");
@@ -93,11 +94,54 @@ public class SqlSentenceUtils {
     }
 
     /**
-     * 创建查找语句
+     * 创建查询语句
      * @param tableName 表名
-     * @return 返回查找语句
+     * @param columns 选择的列
+     * @param conditions 查询条件
+     * @param orderBy 排序
+     * @param limit 行数限制
+     * @param offset 偏移
+     * @return 返回查询语句
      */
-    public static String findAll(@NotNull String tableName) {
-        return "SELECT * FROM " + tableName;
+    public static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
+                              @Nullable String orderBy, int limit, int offset) {
+        if (StringUtils.isEmpty(tableName)) return "";
+        StringBuilder sql = new StringBuilder();
+
+        // select
+        sql.append("SELECT ");
+        if (columns == null || columns.length == 0) {
+            sql.append("*");
+        } else {
+            for (String column : columns) {
+                sql.append(column).append(",");
+            }
+            sql.deleteCharAt(sql.length() - 1);
+        }
+
+        // from
+        sql.append(" FROM ").append(tableName);
+
+        // where
+        if (conditions != null && conditions.length != 0) {
+            sql.append(" WHERE ").append(conditions[0]);
+        }
+
+        // orderBy
+        if (!StringUtils.isEmpty(orderBy)) {
+            sql.append(" ORDER BY ").append(orderBy);
+        }
+
+        // limit
+        if (limit > 0) {
+            sql.append(" LIMIT ").append(limit);
+        }
+
+        // offset
+        if (limit > 0 && offset > 0) {
+            sql.append(" OFFSET ").append(offset);
+        }
+
+        return sql.toString();
     }
 }

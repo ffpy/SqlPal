@@ -14,7 +14,7 @@ public class SqlPal {
         ConnectionManager.init();
         DataSupportClassManager.init();
         TableNameManager.init();
-        FieldManager.init();
+        ModelManager.init();
 
         DataSupportClassManager.destroy();
     }
@@ -26,6 +26,6 @@ public class SqlPal {
         ConfigurationManager.destroy();
         ConnectionManager.destroy();
         TableNameManager.destroy();
-        FieldManager.destroy();
+        ModelManager.destroy();
     }
 }
