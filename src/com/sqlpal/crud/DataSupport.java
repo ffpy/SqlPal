@@ -54,6 +54,13 @@ public abstract class DataSupport {
     }
 
     /**
+     * 删除所有
+     */
+    public static void deleteAll(List<? extends DataSupport> models) throws DataSupportException {
+        DeleteHandler.deleteAll(models);
+    }
+
+    /**
      * 查询所有
      */
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {

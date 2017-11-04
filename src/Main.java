@@ -12,24 +12,31 @@ public class Main {
         try {
             SqlPal.init();
 
-            long t = System.currentTimeMillis();
-            List<User> users = new ArrayList<>();
-            for (int i = 0; i < 10000; i++) {
-                User user = new User();
-                user.setUsername("user" + i);
-                user.setPassword("pwd" + i + "-updated");
-//                user.save();
-                users.add(user);
+            List<User> users = DataSupport.where("username like ?", "%user10%").find(User.class);
+            for (User user : users) {
+                System.out.println(user.getUsername() + " " + user.getPassword() + " " + user.getAge());
             }
-
-            DataSupport.updateAll(users);
-
-            t = System.currentTimeMillis() - t;
-            System.out.println(t + "ms");
+//            DataSupport.deleteAll(users);
 
             SqlPal.destroy();
         } catch (DataSupportException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void insertTest() throws DataSupportException {
+        long t = System.currentTimeMillis();
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            User user = new User();
+            user.setUsername("user" + i);
+            user.setPassword("pwd" + i + "-updated");
+            users.add(user);
+        }
+
+        DataSupport.updateAll(users);
+
+        t = System.currentTimeMillis() - t;
+        System.out.println("insert: " + t + "ms");
     }
 }
