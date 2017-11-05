@@ -62,7 +62,7 @@ public class ModelManager {
     /**
      * 获取主键列表
      */
-    private static ArrayList<String> getPrimaryKeyNames(Class<? extends DataSupport> modelClass) {
+    public static ArrayList<String> getPrimaryKeyNames(Class<? extends DataSupport> modelClass) {
         return primaryKeyNamesMap.get(modelClass.getName());
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 public class ClusterQuery {
     private String[] columns;
     private String[] conditions;
-    private String orderBy;
+    private String[] orderBy;
     private int limit;
     private int offset;
 
@@ -39,11 +39,11 @@ public class ClusterQuery {
 
     /**
      * 设置排序
-     * @param column 排序的列，例如 username 或 username asc 代表从小到大排序，username desc 代表从大到小排序
+     * @param columns 排序的列，例如 username 或 username asc 代表从小到大排序，username desc 代表从大到小排序
      * @return 返回自身
      */
-    public ClusterQuery order(String column) {
-        this.orderBy = column;
+    public ClusterQuery order(String... columns) {
+        this.orderBy = columns;
         return this;
     }
 
@@ -73,6 +73,6 @@ public class ClusterQuery {
      * @return 返回查询结果
      */
     public <T extends DataSupport> List<T> find(Class<? extends DataSupport> modelClass) throws DataSupportException {
-        return QueryHandler.find(modelClass, columns, conditions, orderBy, limit, offset);
+        return new QueryHandler().find(modelClass, columns, conditions, orderBy, limit, offset);
     }
 }

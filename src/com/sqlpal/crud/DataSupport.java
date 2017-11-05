@@ -50,8 +50,16 @@ public abstract class DataSupport {
         return new DeleteHandler().deleteAll(modelClass, conditions);
     }
 
+    public static <T extends DataSupport> T findFirst(Class<? extends DataSupport> modelClass) throws DataSupportException {
+        return new QueryHandler().findFirst(modelClass);
+    }
+
+    public static <T extends DataSupport> T findLast(Class<? extends DataSupport> modelClass) throws DataSupportException {
+        return new QueryHandler().findLast(modelClass);
+    }
+
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {
-        return QueryHandler.findAll(modelClass);
+        return new QueryHandler().findAll(modelClass);
     }
 
     public static ClusterQuery select(String... columns) {

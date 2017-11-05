@@ -124,13 +124,13 @@ public class SqlUtils {
      * @return 返回查询语句
      */
     public static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
-                              @Nullable String orderBy, int limit, int offset) {
+                              @Nullable String[] orderBy, int limit, int offset) {
         if (StringUtils.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
 
         // select
         sql.append("SELECT ");
-        if (columns == null || columns.length == 0) {
+        if (StringUtils.isEmpty(columns)) {
             sql.append("*");
         } else {
             for (String column : columns) {
@@ -143,13 +143,17 @@ public class SqlUtils {
         sql.append(" FROM ").append(tableName);
 
         // where
-        if (conditions != null && conditions.length != 0) {
+        if (!StringUtils.isEmpty(conditions)) {
             sql.append(" WHERE ").append(conditions[0]);
         }
 
         // orderBy
         if (!StringUtils.isEmpty(orderBy)) {
-            sql.append(" ORDER BY ").append(orderBy);
+            sql.append(" ORDER BY ");
+            for (String column : orderBy) {
+                sql.append(column).append(",");
+            }
+            sql.deleteCharAt(sql.length() - 1);
         }
 
         // limit

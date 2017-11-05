@@ -15,12 +15,27 @@ import java.util.List;
 
 class QueryHandler {
 
-    static <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+        List<T> models = find(modelClass, null, null, null, 1, 0);
+        return models.isEmpty() ? null : models.get(0);
+    }
+
+    <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+        ArrayList<String> primaryKeyNames = ModelManager.getPrimaryKeyNames(modelClass);
+        String[] orderBy = new String[primaryKeyNames.size()];
+        for (int i = 0; i < orderBy.length; i++) {
+            orderBy[i] = primaryKeyNames.get(i) + " desc";
+        }
+        List<T> models = find(modelClass, null, null, orderBy, 1, 0);
+        return models.isEmpty() ? null : models.get(0);
+    }
+
+    <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
         return find(modelClass, null, null, null, 0, 0);
     }
 
-    static <T extends DataSupport> List <T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
-                                                        @Nullable String[] conditions, @Nullable String orderBy,
+    <T extends DataSupport> List <T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
+                                                        @Nullable String[] conditions, @Nullable String[] orderBy,
                                                         int limit, int offset) throws DataSupportException {
         String tableName = TableNameManager.getTableName(modelClass);
         List<T> list = new ArrayList<>();
