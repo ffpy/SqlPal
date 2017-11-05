@@ -14,50 +14,50 @@ public abstract class DataSupport {
     /**
      * 获取表名
      */
-    public String getTableName() throws DataSupportException {
+    public String getTableName() {
         return TableNameManager.getTableName(getClass());
     }
 
     /**
      * 保存
      */
-    public void save() throws DataSupportException {
-        SaveHandler.save(this);
+    public int save() throws DataSupportException {
+        return new SaveHandler().save(this);
     }
 
     /**
      * 删除
      */
     public int delete() throws DataSupportException {
-        return DeleteHandler.delete(this);
+        return new DeleteHandler().delete(this);
     }
 
     /**
      * 更新
      */
     public int update() throws DataSupportException {
-        return UpdateHandler.update(this);
+        return new UpdateHandler().update(this);
     }
 
     /**
      * 保存所有
      */
     public static void saveAll(List<? extends DataSupport> models) throws DataSupportException {
-        SaveHandler.saveAll(models);
+        new SaveHandler().saveAll(models);
     }
 
     /**
      * 更新所有
      */
     public static void updateAll(List<? extends DataSupport> models) throws DataSupportException {
-        UpdateHandler.updateAll(models);
+        new UpdateHandler().updateAll(models);
     }
 
     /**
      * 删除所有
      */
     public static void deleteAll(List<? extends DataSupport> models) throws DataSupportException {
-        DeleteHandler.deleteAll(models);
+        new DeleteHandler().deleteAll(models);
     }
 
     /**

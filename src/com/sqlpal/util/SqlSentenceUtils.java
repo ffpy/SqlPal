@@ -80,9 +80,9 @@ public class SqlSentenceUtils {
         sql.append("UPDATE ").append(tableName).append(" SET ");
 
         for (FieldBean bean : updatedFields) {
-            sql.append(bean.getName()).append("=? and ");
+            sql.append(bean.getName()).append("=?,");
         }
-        sql.delete(sql.length() - 5, sql.length());
+        sql.deleteCharAt(sql.length() - 1);
 
         sql.append(" WHERE ");
         for (FieldBean bean : primaryKeyFields) {
