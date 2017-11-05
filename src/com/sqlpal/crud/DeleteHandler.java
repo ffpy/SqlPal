@@ -1,6 +1,6 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
@@ -48,8 +48,8 @@ class DeleteHandler extends BaseUpdateHandler {
     }
 
     @Override
-    protected boolean onInitFieldLists(DataSupport model, List<List<FieldBean>> fieldLists) throws DataSupportException {
-        List<FieldBean> primaryKeyFields = ModelManager.getPrimaryKeyFields(model);
+    protected boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) throws DataSupportException {
+        List<ContentValue> primaryKeyFields = ModelManager.getPrimaryKeyFields(model);
         if (primaryKeyFields.isEmpty()) return false;
         fieldLists.add(primaryKeyFields);
         return true;

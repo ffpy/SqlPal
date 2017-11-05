@@ -2,7 +2,7 @@ package com.sqlpal.manager;
 
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.bean.Configuration;
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.exception.DataSupportException;
@@ -111,24 +111,24 @@ public class ModelManager {
     /**
      * 获取所有字段
      */
-    public static List<FieldBean> getAllFields(@NotNull DataSupport model) throws DataSupportException {
-        ArrayList<FieldBean> list = new ArrayList<>();
-        listNotNullFields(model, (field, name, obj) -> list.add(new FieldBean(name, obj)));
+    public static List<ContentValue> getAllFields(@NotNull DataSupport model) throws DataSupportException {
+        ArrayList<ContentValue> list = new ArrayList<>();
+        listNotNullFields(model, (field, name, obj) -> list.add(new ContentValue(name, obj)));
         return list;
     }
 
     /**
      * 获取主键字段
      */
-    public static List<FieldBean> getPrimaryKeyFields(@NotNull DataSupport model) throws DataSupportException {
-        ArrayList<FieldBean> list = new ArrayList<>();
+    public static List<ContentValue> getPrimaryKeyFields(@NotNull DataSupport model) throws DataSupportException {
+        ArrayList<ContentValue> list = new ArrayList<>();
         Class<? extends DataSupport> cls = model.getClass();
         for (String name : getPrimaryKeyNames(cls)) {
             try {
                 Field field = cls.getDeclaredField(name);
                 field.setAccessible(true);
                 Object obj = field.get(model);
-                list.add(new FieldBean(field.getName(), obj));
+                list.add(new ContentValue(field.getName(), obj));
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 throw new DataSupportException("读取字段失败", e);
             }
@@ -145,12 +145,12 @@ public class ModelManager {
      * @param primaryKeyFields 主键字段
      * @param notPrimaryKeyFields 非主键字段
      */
-    public static void getFields(@NotNull DataSupport model, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> notPrimaryKeyFields) throws DataSupportException {
+    public static void getFields(@NotNull DataSupport model, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> notPrimaryKeyFields) throws DataSupportException {
         listNotNullFields(model, (field, name, obj) -> {
             if (isPrimaryKeyField(field)) {
-                primaryKeyFields.add(new FieldBean(name, obj));
+                primaryKeyFields.add(new ContentValue(name, obj));
             } else {
-                notPrimaryKeyFields.add(new FieldBean(name, obj));
+                notPrimaryKeyFields.add(new ContentValue(name, obj));
             }
         });
     }

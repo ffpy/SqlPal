@@ -1,6 +1,6 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,8 +38,8 @@ public class MyStatement {
      * 添加字段参数
      * @param list 字段列表
      */
-    public MyStatement addValues(List<FieldBean> list) throws SQLException {
-        for (FieldBean bean : list) {
+    public MyStatement addValues(List<ContentValue> list) throws SQLException {
+        for (ContentValue bean : list) {
             Object obj = bean.getValue();
             if (obj == null) continue;
 

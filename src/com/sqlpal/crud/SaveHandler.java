@@ -1,6 +1,6 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.util.SqlUtils;
@@ -24,8 +24,8 @@ class SaveHandler extends BaseUpdateHandler {
     }
 
     @Override
-    protected boolean onInitFieldLists(DataSupport model, List<List<FieldBean>> fieldLists) throws DataSupportException {
-        List<FieldBean> fields = ModelManager.getAllFields(model);
+    protected boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) throws DataSupportException {
+        List<ContentValue> fields = ModelManager.getAllFields(model);
         if (fields.isEmpty()) return false;
         fieldLists.add(fields);
         return true;

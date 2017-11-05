@@ -1,6 +1,6 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
@@ -22,7 +22,7 @@ class UpdateHandler extends BaseUpdateHandler {
 
     public int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws DataSupportException {
         if (conditions.length == 0) return 0;
-        List<FieldBean> fields = ModelManager.getAllFields(model);
+        List<ContentValue> fields = ModelManager.getAllFields(model);
         if (ListUtils.isEmpty(fields)) return 0;
 
         Connection conn = null;
@@ -54,9 +54,9 @@ class UpdateHandler extends BaseUpdateHandler {
     }
 
     @Override
-    protected boolean onInitFieldLists(DataSupport model, List<List<FieldBean>> fieldLists) throws DataSupportException {
-        ArrayList<FieldBean> primaryKeyFields = new ArrayList<>();
-        ArrayList<FieldBean> updatedFields = new ArrayList<>();
+    protected boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) throws DataSupportException {
+        ArrayList<ContentValue> primaryKeyFields = new ArrayList<>();
+        ArrayList<ContentValue> updatedFields = new ArrayList<>();
         ModelManager.getFields(model, primaryKeyFields, updatedFields);
         if (primaryKeyFields.isEmpty() || updatedFields.isEmpty()) return false;
 

@@ -33,4 +33,9 @@ public class User extends DataSupport {
     public void setAge(Integer age) {
         this.age = age;
     }
+
+    @Override
+    public String toString() {
+        return username + "\t" + password + "\t" + age;
+    }
 }

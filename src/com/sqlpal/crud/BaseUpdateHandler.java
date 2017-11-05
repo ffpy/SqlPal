@@ -1,6 +1,6 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.bean.FieldBean;
+import com.sqlpal.bean.ContentValue;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseUpdateHandler {
-    private List<List<FieldBean>> fieldLists = new ArrayList<>();
+    private List<List<ContentValue>> fieldLists = new ArrayList<>();
 
     protected abstract String onCreateSql(DataSupport model) throws DataSupportException;
 
-    protected abstract boolean onInitFieldLists(DataSupport model, List<List<FieldBean>> fieldLists) throws DataSupportException;
+    protected abstract boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) throws DataSupportException;
 
-    protected List<FieldBean> getFields(int index) {
+    protected List<ContentValue> getFields(int index) {
         return fieldLists.get(index);
     }
 
@@ -37,7 +37,7 @@ public abstract class BaseUpdateHandler {
         try {
             conn = ConnectionManager.getConnection();
             stmt = new MyStatement(conn, onCreateSql(model));
-            for (List<FieldBean> fields : fieldLists) {
+            for (List<ContentValue> fields : fieldLists) {
                 stmt.addValues(fields);
             }
             return stmt.executeUpdate();
@@ -67,7 +67,7 @@ public abstract class BaseUpdateHandler {
                     stmt = new MyStatement(conn, onCreateSql(model));
                 }
 
-                for (List<FieldBean> fields : fieldLists) {
+                for (List<ContentValue> fields : fieldLists) {
                     stmt.addValues(fields);
                 }
                 stmt.addBatch();

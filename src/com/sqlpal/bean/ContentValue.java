@@ -1,13 +1,13 @@
 package com.sqlpal.bean;
 
-public class FieldBean {
+public class ContentValue {
     private String name;
     private Object value;
 
-    public FieldBean() {
+    public ContentValue() {
     }
 
-    public FieldBean(String name, Object value) {
+    public ContentValue(String name, Object value) {
         this.name = name;
         this.value = value;
     }
