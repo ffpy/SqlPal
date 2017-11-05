@@ -5,7 +5,7 @@ import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
 import com.sqlpal.util.DBUtils;
-import com.sqlpal.util.SqlSentenceUtils;
+import com.sqlpal.util.SqlUtils;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -29,7 +29,7 @@ class QueryHandler {
         ResultSet rs = null;
         try {
             conn = ConnectionManager.getConnection();
-            String sql = SqlSentenceUtils.find(tableName, columns, conditions, orderBy, limit, offset);
+            String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
             stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
                 stmt.addValues(conditions, 1);

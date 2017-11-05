@@ -2,10 +2,15 @@ package com.sqlpal.crud;
 
 import com.sqlpal.bean.FieldBean;
 import com.sqlpal.exception.DataSupportException;
+import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
-import com.sqlpal.util.SqlSentenceUtils;
+import com.sqlpal.manager.TableNameManager;
+import com.sqlpal.util.DBUtils;
+import com.sqlpal.util.SqlUtils;
 import com.sun.istack.internal.NotNull;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 class DeleteHandler extends BaseUpdateHandler {
@@ -18,15 +23,35 @@ class DeleteHandler extends BaseUpdateHandler {
         handleAll(models);
     }
 
+    int deleteAll(@NotNull Class<? extends DataSupport> modelClass, String... conditions) throws DataSupportException {
+        Connection conn = null;
+        MyStatement stmt = null;
+        try {
+            conn = ConnectionManager.getConnection();
+            String sql = SqlUtils.delete(TableNameManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null);
+            stmt = new MyStatement(conn, sql);
+            if (conditions.length > 1) {
+                stmt.addValues(conditions, 1);
+            }
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataSupportException("操作数据库出错！", e);
+        } finally {
+            DBUtils.close(stmt);
+            ConnectionManager.freeConnection(conn);
+        }
+    }
+
     @Override
     protected String onCreateSql(DataSupport model) throws DataSupportException {
-        return SqlSentenceUtils.delete(model.getTableName(), getFields(0));
+        return SqlUtils.delete(model.getTableName(), getFields(0));
     }
 
     @Override
     protected boolean onInitFieldLists(DataSupport model, List<List<FieldBean>> fieldLists) throws DataSupportException {
-        List<FieldBean> fields = ModelManager.getPrimaryKeyFields(model);
-        fieldLists.add(fields);
+        List<FieldBean> primaryKeyFields = ModelManager.getPrimaryKeyFields(model);
+        if (primaryKeyFields.isEmpty()) return false;
+        fieldLists.add(primaryKeyFields);
         return true;
     }
 }

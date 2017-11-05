@@ -3,7 +3,7 @@ package com.sqlpal.crud;
 import com.sqlpal.bean.FieldBean;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ModelManager;
-import com.sqlpal.util.SqlSentenceUtils;
+import com.sqlpal.util.SqlUtils;
 import com.sun.istack.internal.NotNull;
 
 import java.util.List;
@@ -20,7 +20,7 @@ class SaveHandler extends BaseUpdateHandler {
 
     @Override
     protected String onCreateSql(DataSupport model) throws DataSupportException {
-        return SqlSentenceUtils.insert(model.getTableName(), getFields(0));
+        return SqlUtils.insert(model.getTableName(), getFields(0));
     }
 
     @Override

@@ -18,51 +18,38 @@ public abstract class DataSupport {
         return TableNameManager.getTableName(getClass());
     }
 
-    /**
-     * 保存
-     */
     public int save() throws DataSupportException {
         return new SaveHandler().save(this);
     }
 
-    /**
-     * 删除
-     */
-    public int delete() throws DataSupportException {
-        return new DeleteHandler().delete(this);
-    }
-
-    /**
-     * 更新
-     */
-    public int update() throws DataSupportException {
-        return new UpdateHandler().update(this);
-    }
-
-    /**
-     * 保存所有
-     */
     public static void saveAll(List<? extends DataSupport> models) throws DataSupportException {
         new SaveHandler().saveAll(models);
     }
 
-    /**
-     * 更新所有
-     */
+    public int update() throws DataSupportException {
+        return new UpdateHandler().update(this);
+    }
+
+    public int updateAll(String... conditions) throws DataSupportException {
+        return new UpdateHandler().updateAll(this, conditions);
+    }
+
     public static void updateAll(List<? extends DataSupport> models) throws DataSupportException {
         new UpdateHandler().updateAll(models);
     }
 
-    /**
-     * 删除所有
-     */
+    public int delete() throws DataSupportException {
+        return new DeleteHandler().delete(this);
+    }
+
     public static void deleteAll(List<? extends DataSupport> models) throws DataSupportException {
         new DeleteHandler().deleteAll(models);
     }
 
-    /**
-     * 查询所有
-     */
+    public static int deleteAll(Class<? extends DataSupport> modelClass, String... conditions) throws DataSupportException {
+        return new DeleteHandler().deleteAll(modelClass, conditions);
+    }
+
     public static  <T extends DataSupport> List<T> findAll(Class<? extends DataSupport> modelClass) throws DataSupportException {
         return QueryHandler.findAll(modelClass);
     }

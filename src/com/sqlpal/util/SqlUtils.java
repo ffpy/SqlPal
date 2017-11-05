@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * SQL语句工具类
  */
-public class SqlSentenceUtils {
+public class SqlUtils {
 
     /**
      * 创建插入语句
@@ -61,9 +61,14 @@ public class SqlSentenceUtils {
      * @param where where条件
      * @return 返回删除语句
      */
-    public static String delete(@NotNull String tableName, @NotNull String where) {
-        if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(where)) return "";
-        return "DELETE FROM " + tableName + " WHERE " + where;
+    public static String delete(@NotNull String tableName, @Nullable String where) {
+        if (StringUtils.isEmpty(tableName)) return "";
+        StringBuilder sql = new StringBuilder();
+        sql.append("DELETE FROM ").append(tableName);
+        if (!StringUtils.isEmpty(where)) {
+            sql.append(" WHERE ").append(where);
+        }
+        return sql.toString();
     }
 
     /**
@@ -74,7 +79,26 @@ public class SqlSentenceUtils {
      * @return 返回更新语句
      */
     public static String update(@NotNull String tableName, @NotNull List<FieldBean> primaryKeyFields, @NotNull List<FieldBean> updatedFields) {
-        if (StringUtils.isEmpty(tableName) || ListUtils.isEmpty(primaryKeyFields) || ListUtils.isEmpty(updatedFields)) return "";
+        if (ListUtils.isEmpty(primaryKeyFields)) return "";
+
+        StringBuilder where = new StringBuilder();
+        for (FieldBean bean : primaryKeyFields) {
+            where.append(bean.getName()).append("=? and ");
+        }
+        where.delete(where.length() - 5, where.length());
+
+        return update(tableName, where.toString(), updatedFields);
+    }
+
+    /**
+     * 创建更新语句
+     * @param tableName 表名
+     * @param where 更新条件
+     * @param updatedFields 要更新的字段
+     * @return 返回更新语句
+     */
+    public static String update(@NotNull String tableName, @NotNull String where, @NotNull List<FieldBean> updatedFields) {
+        if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(where) || ListUtils.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(tableName).append(" SET ");
@@ -84,11 +108,7 @@ public class SqlSentenceUtils {
         }
         sql.deleteCharAt(sql.length() - 1);
 
-        sql.append(" WHERE ");
-        for (FieldBean bean : primaryKeyFields) {
-            sql.append(bean.getName()).append("=? and ");
-        }
-        sql.delete(sql.length() - 5, sql.length());
+        sql.append(" WHERE ").append(where);
 
         return sql.toString();
     }
