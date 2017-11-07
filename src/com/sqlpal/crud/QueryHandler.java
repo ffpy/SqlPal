@@ -5,8 +5,8 @@ import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
 import com.sqlpal.util.DBUtils;
+import com.sqlpal.util.EmptyUtlis;
 import com.sqlpal.util.SqlUtils;
-import com.sqlpal.util.StringUtils;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -16,18 +16,20 @@ import java.util.List;
 
 class QueryHandler {
 
-    <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
-        List<T> models = find(modelClass, null, null, null, 1, 0);
+    <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
+                                        @Nullable String[] conditions) throws DataSupportException {
+        List<T> models = find(modelClass, columns, conditions, null, 1, 0);
         return models.isEmpty() ? null : models.get(0);
     }
 
-    <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
+                                       @Nullable String[] conditions) throws DataSupportException {
         ArrayList<String> primaryKeyNames = ModelManager.getPrimaryKeyNames(modelClass);
         String[] orderBy = new String[primaryKeyNames.size()];
         for (int i = 0; i < orderBy.length; i++) {
             orderBy[i] = primaryKeyNames.get(i) + " desc";
         }
-        List<T> models = find(modelClass, null, null, orderBy, 1, 0);
+        List<T> models = find(modelClass, columns, conditions, orderBy, 1, 0);
         return models.isEmpty() ? null : models.get(0);
     }
 
@@ -79,15 +81,21 @@ class QueryHandler {
             rs = stmt.executeQuery();
             if (rs.next()) {
                 String s = rs.getString(1);
-                if (!StringUtils.isEmpty(s)) {
+                if (!EmptyUtlis.isEmpty(s)) {
                     try {
                         switch (columnType.getName()) {
+                            case "short":
+                                return (T) Short.valueOf(s);
                             case "int":
                                 return (T) Integer.valueOf(s);
+                            case "long":
+                                return (T) Long.valueOf(s);
+                            case "float":
+                                return (T) Float.valueOf(s);
                             case "double":
                                 return (T) Double.valueOf(s);
                             default:
-                                throw new RuntimeException("不支持的类型" + columnType.getName() + "，请使用int.class或double.class");
+                                throw new RuntimeException("不支持的类型" + columnType.getName());
                         }
                     } catch (NumberFormatException ignored) {
                     }
@@ -95,12 +103,18 @@ class QueryHandler {
             }
 
             switch (columnType.getName()) {
+                case "short":
+                    return (T) Short.valueOf((short) 0);
                 case "int":
                     return (T) Integer.valueOf(0);
+                case "long":
+                    return (T) Long.valueOf(0);
+                case "float":
+                    return (T) Float.valueOf(0);
                 case "double":
                     return (T) Double.valueOf(0);
                 default:
-                    throw new RuntimeException("不支持的类型" + columnType.getName() + "，请使用int.class或double.class");
+                    throw new RuntimeException("不支持的类型" + columnType.getName());
             }
         } catch (SQLException e) {
             throw new DataSupportException("操作数据库出错！", e);

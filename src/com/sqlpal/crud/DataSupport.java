@@ -53,11 +53,11 @@ public abstract class DataSupport {
     }
 
     public static <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
-        return new QueryHandler().findFirst(modelClass);
+        return new QueryHandler().findFirst(modelClass, null, null);
     }
 
     public static <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
-        return new QueryHandler().findLast(modelClass);
+        return new QueryHandler().findLast(modelClass, null, null);
     }
 
     public static  <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
@@ -102,5 +102,13 @@ public abstract class DataSupport {
 
     public static <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
         return new ClusterQuery().min(modelClass, column, columnType);
+    }
+
+    public static Cursor executeQuery(@NotNull String... condition) throws DataSupportException {
+        return new UpdateHandler().executeQuery(condition);
+    }
+
+    public static int executeUpdate(@NotNull String... condition) throws DataSupportException {
+        return new UpdateHandler().executeUpdate(condition);
     }
 }

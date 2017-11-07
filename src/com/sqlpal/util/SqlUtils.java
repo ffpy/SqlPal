@@ -18,7 +18,7 @@ public class SqlUtils {
      * @return 返回插入语句
      */
     public static String insert(@NotNull String tableName, @NotNull List<ContentValue> fields) {
-        if (StringUtils.isEmpty(tableName) || fields.isEmpty()) return "";
+        if (EmptyUtlis.isEmpty(tableName) || fields.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO ").append(tableName).append("(");
@@ -45,7 +45,7 @@ public class SqlUtils {
      * @return 返回删除语句
      */
     public static String delete(@NotNull String tableName, @NotNull List<ContentValue> fields) {
-        if (StringUtils.isEmpty(tableName) || fields.isEmpty()) return "";
+        if (EmptyUtlis.isEmpty(tableName) || fields.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
         for (ContentValue bean : fields) {
             where.append(bean.getName()).append("=? and ");
@@ -62,10 +62,10 @@ public class SqlUtils {
      * @return 返回删除语句
      */
     public static String delete(@NotNull String tableName, @Nullable String where) {
-        if (StringUtils.isEmpty(tableName)) return "";
+        if (EmptyUtlis.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(tableName);
-        if (!StringUtils.isEmpty(where)) {
+        if (!EmptyUtlis.isEmpty(where)) {
             sql.append(" WHERE ").append(where);
         }
         return sql.toString();
@@ -79,7 +79,7 @@ public class SqlUtils {
      * @return 返回更新语句
      */
     public static String update(@NotNull String tableName, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> updatedFields) {
-        if (ListUtils.isEmpty(primaryKeyFields)) return "";
+        if (EmptyUtlis.isEmpty(primaryKeyFields)) return "";
 
         StringBuilder where = new StringBuilder();
         for (ContentValue bean : primaryKeyFields) {
@@ -98,7 +98,7 @@ public class SqlUtils {
      * @return 返回更新语句
      */
     public static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ContentValue> updatedFields) {
-        if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(where) || ListUtils.isEmpty(updatedFields)) return "";
+        if (EmptyUtlis.isEmpty(tableName) || EmptyUtlis.isEmpty(where) || EmptyUtlis.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(tableName).append(" SET ");
@@ -125,12 +125,12 @@ public class SqlUtils {
      */
     public static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
                               @Nullable String[] orderBy, int limit, int offset) {
-        if (StringUtils.isEmpty(tableName)) return "";
+        if (EmptyUtlis.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
 
         // select
         sql.append("SELECT ");
-        if (StringUtils.isEmpty(columns)) {
+        if (EmptyUtlis.isEmpty(columns)) {
             sql.append("*");
         } else {
             for (String column : columns) {
@@ -143,12 +143,12 @@ public class SqlUtils {
         sql.append(" FROM ").append(tableName);
 
         // where
-        if (!StringUtils.isEmpty(conditions)) {
+        if (!EmptyUtlis.isEmpty(conditions)) {
             sql.append(" WHERE ").append(conditions[0]);
         }
 
         // orderBy
-        if (!StringUtils.isEmpty(orderBy)) {
+        if (!EmptyUtlis.isEmpty(orderBy)) {
             sql.append(" ORDER BY ");
             for (String column : orderBy) {
                 sql.append(column).append(",");

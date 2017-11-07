@@ -5,7 +5,7 @@ import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.util.DBUtils;
-import com.sqlpal.util.ListUtils;
+import com.sqlpal.util.EmptyUtlis;
 import com.sqlpal.util.SqlUtils;
 import com.sun.istack.internal.NotNull;
 
@@ -23,7 +23,7 @@ class UpdateHandler extends BaseUpdateHandler {
     public int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws DataSupportException {
         if (conditions.length == 0) return 0;
         List<ContentValue> fields = ModelManager.getAllFields(model);
-        if (ListUtils.isEmpty(fields)) return 0;
+        if (EmptyUtlis.isEmpty(fields)) return 0;
 
         MyStatement stmt = null;
         try {

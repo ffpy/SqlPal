@@ -1,7 +1,6 @@
 package com.sqlpal.crud;
 
 import com.sqlpal.exception.DataSupportException;
-import com.sqlpal.util.StringUtils;
 import com.sun.istack.internal.NotNull;
 
 import java.util.List;
@@ -76,6 +75,14 @@ public class ClusterQuery {
      */
     public <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
         return new QueryHandler().find(modelClass, columns, conditions, orderBy, limit, offset);
+    }
+
+    public <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+        return new QueryHandler().findFirst(modelClass, columns, conditions);
+    }
+
+    public <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+        return new QueryHandler().findLast(modelClass, columns, conditions);
     }
 
     public int count(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {

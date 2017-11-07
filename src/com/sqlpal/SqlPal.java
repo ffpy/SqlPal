@@ -3,6 +3,10 @@ package com.sqlpal;
 import com.sqlpal.exception.ConnectionException;
 import com.sqlpal.manager.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+
 public class SqlPal {
 
     /**
@@ -42,5 +46,25 @@ public class SqlPal {
 
     public static void end() {
         ConnectionManager.freeConnection();
+    }
+
+    public static Savepoint setSavepoint() throws SQLException {
+        return ConnectionManager.getConnection().setSavepoint();
+    }
+
+    public static Savepoint setSavepoint(String name) throws SQLException {
+        return ConnectionManager.getConnection().setSavepoint(name);
+    }
+
+    public static void rollback() throws SQLException {
+        ConnectionManager.getConnection().rollback();
+    }
+
+    public static void rollback(Savepoint savepoint) throws SQLException {
+        ConnectionManager.getConnection().rollback(savepoint);
+    }
+
+    public static Connection getConnection() {
+        return ConnectionManager.getConnection();
     }
 }

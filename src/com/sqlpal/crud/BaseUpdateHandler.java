@@ -5,10 +5,11 @@ import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.util.DBUtils;
-import com.sqlpal.util.ListUtils;
+import com.sqlpal.util.EmptyUtlis;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public abstract class BaseUpdateHandler {
     }
 
     protected final void handleAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
-        if (ListUtils.isEmpty(models)) return;
+        if (EmptyUtlis.isEmpty(models)) return;
 
         MyStatement stmt = null;
         try {
@@ -79,6 +80,40 @@ public abstract class BaseUpdateHandler {
             }
             conn.commit();
             conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new DataSupportException("操作数据库出错！", e);
+        } finally {
+            DBUtils.close(stmt);
+        }
+    }
+
+    public Cursor executeQuery(@NotNull String[] conditions) throws DataSupportException {
+        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+
+        try {
+            Connection conn = ConnectionManager.getConnection();
+            MyStatement stmt = new MyStatement(conn, conditions[0]);
+            if (conditions.length > 1) {
+                stmt.addValues(conditions, 1);
+            }
+            ResultSet rs = stmt.executeQuery();
+            return new Cursor(stmt, rs);
+        } catch (SQLException e) {
+            throw new DataSupportException("操作数据库出错！", e);
+        }
+    }
+
+    public int executeUpdate(@NotNull String[] conditions) throws DataSupportException {
+        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+
+        MyStatement stmt = null;
+        try {
+            Connection conn = ConnectionManager.getConnection();
+            stmt = new MyStatement(conn, conditions[0]);
+            if (conditions.length > 1) {
+                stmt.addValues(conditions, 1);
+            }
+            return stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
