@@ -105,7 +105,7 @@ public abstract class DataSupport {
     }
 
     public static Cursor executeQuery(@NotNull String... condition) throws DataSupportException {
-        return new UpdateHandler().executeQuery(condition);
+        return new QueryHandler().executeQuery(condition);
     }
 
     public static int executeUpdate(@NotNull String... condition) throws DataSupportException {

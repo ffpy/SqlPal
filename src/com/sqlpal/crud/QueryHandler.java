@@ -122,4 +122,20 @@ class QueryHandler {
             DBUtils.close(stmt, rs);
         }
     }
+
+    public Cursor executeQuery(@NotNull String[] conditions) throws DataSupportException {
+        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+
+        try {
+            Connection conn = ConnectionManager.getConnection();
+            MyStatement stmt = new MyStatement(conn, conditions[0]);
+            if (conditions.length > 1) {
+                stmt.addValues(conditions, 1);
+            }
+            ResultSet rs = stmt.executeQuery();
+            return new Cursor(stmt, rs);
+        } catch (SQLException e) {
+            throw new DataSupportException("操作数据库出错！", e);
+        }
+    }
 }

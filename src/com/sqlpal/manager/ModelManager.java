@@ -1,12 +1,12 @@
 package com.sqlpal.manager;
 
+import com.sqlpal.annotation.AutoIncrement;
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.bean.Configuration;
 import com.sqlpal.bean.ContentValue;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.exception.DataSupportException;
-import com.sqlpal.exception.PrimaryKeyNotFoundException;
 import com.sun.istack.internal.NotNull;
 
 import java.lang.reflect.Field;
@@ -14,20 +14,27 @@ import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 模型管理器
  */
 public class ModelManager {
-    private static HashMap<String, ArrayList<String>> primaryKeyNamesMap;   // 主键名
+    private static final String[] supportedClassNames = {
+            "java.lang.Integer", "java.lang.Short", "java.lang.Long",
+            "java.lang.Float", "java.lang.Double", "java.lang.String",
+            "java.util.Date"};                                                          // 支持的数据类型
+    private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyNamesMap;     // 模型类对应的主键
+    private static ConcurrentHashMap<String, String> autoIncrementMap;                  // 模型类对应的自增字段
 
     /**
      * 初始化字段信息
      */
     public static void init() {
-        primaryKeyNamesMap = new HashMap<>();
+        primaryKeyNamesMap = new ConcurrentHashMap<>();
+        autoIncrementMap = new ConcurrentHashMap<>();
+
         Configuration configuration = ConfigurationManager.getConfiguration();
         for (String className : configuration.getMapping()) {
             Class<?> cls = DataSupportClassManager.getClass(className);
@@ -38,7 +45,13 @@ public class ModelManager {
                 field.setAccessible(true);
                 if (!isSupportedField(field)) continue;
                 if (!isPrimaryKeyField(field)) continue;
+                // 主键
                 primaryKeyNames.add(field.getName());
+
+                // 自增字段
+                if (isAutoIncrement(field)) {
+                    autoIncrementMap.put(className, field.getName());
+                }
             }
 
             if (primaryKeyNames.isEmpty()) {
@@ -57,6 +70,10 @@ public class ModelManager {
             primaryKeyNamesMap.clear();
             primaryKeyNamesMap = null;
         }
+        if (autoIncrementMap != null) {
+            autoIncrementMap.clear();
+            autoIncrementMap = null;
+        }
     }
 
     /**
@@ -70,10 +87,6 @@ public class ModelManager {
      * 检查字段类型是不是支持的类型
      */
     private static boolean isSupportedField(Field field) {
-        String[] supportedClassNames = {
-                "java.lang.Integer", "java.lang.Short", "java.lang.Long",
-                "java.lang.Float", "java.lang.Double", "java.lang.String",
-                "java.util.Date"};
         if (field.getModifiers() != Modifier.PRIVATE) return false;
         String className = field.getGenericType().getTypeName();
         for (String name : supportedClassNames) {
@@ -87,6 +100,13 @@ public class ModelManager {
      */
     private static boolean isPrimaryKeyField(Field field) {
         return field.getAnnotation(PrimaryKey.class) != null;
+    }
+
+    /**
+     * 判断是不是自增字段
+     */
+    private static boolean isAutoIncrement(Field field) {
+        return field.getAnnotation(AutoIncrement.class) != null;
     }
 
     /**
@@ -134,7 +154,7 @@ public class ModelManager {
             }
         }
         if (list.isEmpty()) {
-            throw new PrimaryKeyNotFoundException(model.getClass());
+            throw new RuntimeException("找不到主键，请为" + model.getClass() + "添加PrimaryKey注解以指定主键");
         }
         return list;
     }
@@ -197,6 +217,14 @@ public class ModelManager {
                 throw new DataSupportException("设置字段值出错", e);
             }
         }
+    }
+
+    /**
+     * 获取模型类的自增字段
+     * @return 返回自增字段名，null代表没有自增字段
+     */
+    public static String getAutoIncrement(@NotNull Class<? extends DataSupport> modelClass) {
+        return autoIncrementMap.get(modelClass.getName());
     }
 
     /**

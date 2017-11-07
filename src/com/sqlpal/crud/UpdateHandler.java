@@ -17,7 +17,7 @@ import java.util.List;
 class UpdateHandler extends BaseUpdateHandler {
 
     int update(@NotNull DataSupport model) throws DataSupportException {
-        return handle(model);
+        return handle(model, false);
     }
 
     public int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws DataSupportException {
@@ -43,7 +43,25 @@ class UpdateHandler extends BaseUpdateHandler {
     }
 
     void updateAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
-        handleAll(models);
+        handleAll(models, false);
+    }
+
+    public int executeUpdate(@NotNull String[] conditions) throws DataSupportException {
+        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+
+        MyStatement stmt = null;
+        try {
+            Connection conn = ConnectionManager.getConnection();
+            stmt = new MyStatement(conn, conditions[0]);
+            if (conditions.length > 1) {
+                stmt.addValues(conditions, 1);
+            }
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataSupportException("操作数据库出错！", e);
+        } finally {
+            DBUtils.close(stmt);
+        }
     }
 
     @Override

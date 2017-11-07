@@ -16,11 +16,11 @@ import java.util.List;
 class DeleteHandler extends BaseUpdateHandler {
 
     int delete(DataSupport model) throws DataSupportException {
-        return handle(model);
+        return handle(model, false);
     }
 
     void deleteAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
-        handleAll(models);
+        handleAll(models, false);
     }
 
     int deleteAll(@NotNull Class<? extends DataSupport> modelClass, String... conditions) throws DataSupportException {

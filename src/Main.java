@@ -1,12 +1,11 @@
 import com.sqlpal.SqlPal;
-import com.sqlpal.crud.Cursor;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConnectionException;
 import com.sqlpal.exception.DataSupportException;
+import entity.News;
 import entity.User;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -16,8 +15,19 @@ public class Main {
 
         try {
             SqlPal.begin();
-            int n = DataSupport.executeUpdate("delete from user where username = ?", "user3");
-            System.out.println(n);
+
+            List<News> newsArrayList = new ArrayList<>();
+            for (int i = 0; i < 25; i++) {
+                News news = new News();
+                news.setTitle("test");
+                newsArrayList.add(news);
+            }
+            DataSupport.saveAll(newsArrayList);
+
+            for (News n : newsArrayList) {
+                System.out.println(n.getId());
+            }
+
             SqlPal.end();
         } catch (ConnectionException e) {
             e.printStackTrace();

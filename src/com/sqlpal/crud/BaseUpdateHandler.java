@@ -4,18 +4,22 @@ import com.sqlpal.bean.ContentValue;
 import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
+import com.sqlpal.manager.ModelManager;
 import com.sqlpal.util.DBUtils;
 import com.sqlpal.util.EmptyUtlis;
 import com.sun.istack.internal.NotNull;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseUpdateHandler {
     private List<List<ContentValue>> fieldLists = new ArrayList<>();
+    private int insertIndex = 0;
 
     protected abstract String onCreateSql(DataSupport model) throws DataSupportException;
 
@@ -30,7 +34,7 @@ public abstract class BaseUpdateHandler {
         return onInitFieldLists(model, fieldLists);
     }
 
-    protected final int handle(@NotNull DataSupport model) throws DataSupportException {
+    protected final int handle(@NotNull DataSupport model, boolean isInsert) throws DataSupportException {
         if (!initFieldLists(model)) return 0;
 
         MyStatement stmt = null;
@@ -40,7 +44,14 @@ public abstract class BaseUpdateHandler {
             for (List<ContentValue> fields : fieldLists) {
                 stmt.addValues(fields);
             }
-            return stmt.executeUpdate();
+            int res = stmt.executeUpdate();
+
+            // 填充自增字段
+            if (isInsert) {
+                fillAutoIncrement(model, stmt.getStatement());
+            }
+
+            return res;
         } catch (SQLException e) {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
@@ -48,7 +59,7 @@ public abstract class BaseUpdateHandler {
         }
     }
 
-    protected final void handleAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
+    protected final void handleAll(@NotNull List<? extends DataSupport> models, boolean isInsert) throws DataSupportException {
         if (EmptyUtlis.isEmpty(models)) return;
 
         MyStatement stmt = null;
@@ -72,11 +83,17 @@ public abstract class BaseUpdateHandler {
 
                 if (++batchCount % maxBatchCount == 0) {
                     stmt.executeBatch();
+
+                    fillAutoIncrement(models, stmt.getStatement());
                 }
             }
 
             if (stmt != null) {
                 stmt.executeBatch();
+                // 填充自增字段
+                if (isInsert) {
+                    fillAutoIncrement(models, stmt.getStatement());
+                }
             }
             conn.commit();
             conn.setAutoCommit(true);
@@ -87,37 +104,29 @@ public abstract class BaseUpdateHandler {
         }
     }
 
-    public Cursor executeQuery(@NotNull String[] conditions) throws DataSupportException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
-
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            MyStatement stmt = new MyStatement(conn, conditions[0]);
-            if (conditions.length > 1) {
-                stmt.addValues(conditions, 1);
-            }
-            ResultSet rs = stmt.executeQuery();
-            return new Cursor(stmt, rs);
-        } catch (SQLException e) {
-            throw new DataSupportException("操作数据库出错！", e);
-        }
+    private void fillAutoIncrement(@NotNull DataSupport model, Statement stmt) throws SQLException {
+        List<DataSupport> models = new ArrayList<>();
+        models.add(model);
+        fillAutoIncrement(models, stmt);
     }
 
-    public int executeUpdate(@NotNull String[] conditions) throws DataSupportException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+    /**
+     * 填充自增字段
+     */
+    private void fillAutoIncrement(@NotNull List<? extends DataSupport> models, Statement stmt) throws SQLException {
+        Class<? extends DataSupport> cls = models.get(0).getClass();
+        String fieldName = ModelManager.getAutoIncrement(cls);
+        if (fieldName == null) return;
 
-        MyStatement stmt = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            stmt = new MyStatement(conn, conditions[0]);
-            if (conditions.length > 1) {
-                stmt.addValues(conditions, 1);
+        ResultSet rs = stmt.getGeneratedKeys();
+        while (rs.next()) {
+            int id = rs.getInt(1);
+            try {
+                Field field = cls.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(models.get(insertIndex++), id);
+            } catch (IllegalAccessException | NoSuchFieldException ignored) {
             }
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataSupportException("操作数据库出错！", e);
-        } finally {
-            DBUtils.close(stmt);
         }
     }
 }

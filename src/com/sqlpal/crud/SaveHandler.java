@@ -11,11 +11,11 @@ import java.util.List;
 class SaveHandler extends BaseUpdateHandler {
 
     int save(@NotNull DataSupport model) throws DataSupportException {
-        return handle(model);
+        return handle(model, true);
     }
 
     void saveAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
-        handleAll(models);
+        handleAll(models, true);
     }
 
     @Override

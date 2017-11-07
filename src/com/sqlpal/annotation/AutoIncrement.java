@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 将字段标记为主键
+ * 将主键字段标记为自增，每个表最多只能有一个自增字段
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface PrimaryKey {
+public @interface AutoIncrement {
 }

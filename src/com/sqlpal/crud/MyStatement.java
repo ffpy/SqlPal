@@ -2,10 +2,7 @@ package com.sqlpal.crud;
 
 import com.sqlpal.bean.ContentValue;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +11,7 @@ public class MyStatement {
     private PreparedStatement statement;
 
     public MyStatement(Connection conn, String sql) throws SQLException {
-        statement = conn.prepareStatement(sql);
+        statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
     }
 
     public void addBatch() throws SQLException {
@@ -27,7 +24,8 @@ public class MyStatement {
     }
 
     public int executeUpdate() throws SQLException {
-        return statement.executeUpdate();
+        int n = statement.executeUpdate();
+        return n;
     }
 
     public ResultSet executeQuery() throws SQLException {

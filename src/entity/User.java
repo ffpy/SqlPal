@@ -6,7 +6,8 @@ import com.sqlpal.annotation.TableName;
 
 @TableName(name = "user")
 public class User extends DataSupport {
-    @PrimaryKey private String username;
+    @PrimaryKey
+    private String username;
     private String password;
     private Integer age;
 

@@ -5,19 +5,19 @@ import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.annotation.TableName;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 表名管理器
  */
 public class TableNameManager {
-    private static HashMap<String, String> tableMap;
+    private static ConcurrentHashMap<String, String> tableMap;
 
     /**
      * 初始化
      */
     public static void init() {
-        tableMap = new HashMap<>();
+        tableMap = new ConcurrentHashMap<>();
         Configuration configuration = ConfigurationManager.getConfiguration();
         for (String className : configuration.getMapping()) {
             Class<?> cls = DataSupportClassManager.getClass(className);

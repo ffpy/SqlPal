@@ -1,12 +1,15 @@
 package entity;
 
+import com.sqlpal.annotation.AutoIncrement;
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.annotation.TableName;
 import com.sqlpal.crud.DataSupport;
 
 @TableName(name = "news_detail")
 public class NewsDetail extends DataSupport {
-    @PrimaryKey private Integer id;
+    @PrimaryKey
+    @AutoIncrement
+    private Integer id;
     private String content;
 
     public Integer getId() {
