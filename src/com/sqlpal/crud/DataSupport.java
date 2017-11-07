@@ -1,10 +1,9 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.TableNameManager;
 import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -20,47 +19,47 @@ public abstract class DataSupport {
         return TableNameManager.getTableName(getClass());
     }
 
-    public int save() throws DataSupportException {
+    public int save() throws SQLException {
         return new SaveHandler().save(this);
     }
 
-    public static void saveAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
+    public static void saveAll(@NotNull List<? extends DataSupport> models) throws SQLException {
         new SaveHandler().saveAll(models);
     }
 
-    public int update() throws DataSupportException {
+    public int update() throws SQLException {
         return new UpdateHandler().update(this);
     }
 
-    public int updateAll(@NotNull String... conditions) throws DataSupportException {
+    public int updateAll(@NotNull String... conditions) throws SQLException {
         return new UpdateHandler().updateAll(this, conditions);
     }
 
-    public static void updateAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
+    public static void updateAll(@NotNull List<? extends DataSupport> models) throws SQLException {
         new UpdateHandler().updateAll(models);
     }
 
-    public int delete() throws DataSupportException {
+    public int delete() throws SQLException {
         return new DeleteHandler().delete(this);
     }
 
-    public static void deleteAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
+    public static void deleteAll(@NotNull List<? extends DataSupport> models) throws SQLException {
         new DeleteHandler().deleteAll(models);
     }
 
-    public static int deleteAll(@NotNull Class<? extends DataSupport> modelClass, @NotNull String... conditions) throws DataSupportException {
+    public static int deleteAll(@NotNull Class<? extends DataSupport> modelClass, @NotNull String... conditions) throws SQLException {
         return new DeleteHandler().deleteAll(modelClass, conditions);
     }
 
-    public static <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public static <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().findFirst(modelClass, null, null);
     }
 
-    public static <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public static <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().findLast(modelClass, null, null);
     }
 
-    public static  <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public static  <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().findAll(modelClass);
     }
 
@@ -84,31 +83,31 @@ public abstract class DataSupport {
         return new ClusterQuery().offset(value);
     }
 
-    public static int count(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public static int count(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new ClusterQuery().count(modelClass);
     }
 
-    public static <T extends Number> T sum(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public static <T extends Number> T sum(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         return new ClusterQuery().sum(modelClass, column, columnType);
     }
 
-    public static double average(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column) throws DataSupportException {
+    public static double average(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column) throws SQLException {
         return new ClusterQuery().average(modelClass, column);
     }
 
-    public static <T extends Number> T max(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public static <T extends Number> T max(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         return new ClusterQuery().max(modelClass, column, columnType);
     }
 
-    public static <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public static <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         return new ClusterQuery().min(modelClass, column, columnType);
     }
 
-    public static Cursor executeQuery(@NotNull String... condition) throws DataSupportException {
+    public static Cursor executeQuery(@NotNull String... condition) throws SQLException {
         return new QueryHandler().executeQuery(condition);
     }
 
-    public static int executeUpdate(@NotNull String... condition) throws DataSupportException {
+    public static int executeUpdate(@NotNull String... condition) throws SQLException {
         return new UpdateHandler().executeUpdate(condition);
     }
 }

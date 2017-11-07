@@ -24,8 +24,7 @@ public class MyStatement {
     }
 
     public int executeUpdate() throws SQLException {
-        int n = statement.executeUpdate();
-        return n;
+        return statement.executeUpdate();
     }
 
     public ResultSet executeQuery() throws SQLException {

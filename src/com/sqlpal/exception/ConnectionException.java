@@ -1,6 +1,6 @@
 package com.sqlpal.exception;
 
-public class ConnectionException extends DataSupportException {
+public class ConnectionException extends Exception {
 
     public ConnectionException() {
     }

@@ -1,7 +1,6 @@
 package com.sqlpal.crud;
 
 import com.sqlpal.bean.ContentValue;
-import com.sqlpal.exception.DataSupportException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
@@ -21,20 +20,20 @@ public abstract class BaseUpdateHandler {
     private List<List<ContentValue>> fieldLists = new ArrayList<>();
     private int insertIndex = 0;
 
-    protected abstract String onCreateSql(DataSupport model) throws DataSupportException;
+    protected abstract String onCreateSql(DataSupport model);
 
-    protected abstract boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) throws DataSupportException;
+    protected abstract boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists);
 
     protected List<ContentValue> getFields(int index) {
         return fieldLists.get(index);
     }
 
-    private boolean initFieldLists(DataSupport model) throws DataSupportException {
+    private boolean initFieldLists(DataSupport model) {
         fieldLists.clear();
         return onInitFieldLists(model, fieldLists);
     }
 
-    protected final int handle(@NotNull DataSupport model, boolean isInsert) throws DataSupportException {
+    protected final int handle(@NotNull DataSupport model, boolean isInsert) throws SQLException {
         if (!initFieldLists(model)) return 0;
 
         MyStatement stmt = null;
@@ -52,19 +51,18 @@ public abstract class BaseUpdateHandler {
             }
 
             return res;
-        } catch (SQLException e) {
-            throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt);
         }
     }
 
-    protected final void handleAll(@NotNull List<? extends DataSupport> models, boolean isInsert) throws DataSupportException {
+    protected final void handleAll(@NotNull List<? extends DataSupport> models, boolean isInsert) throws SQLException {
         if (EmptyUtlis.isEmpty(models)) return;
 
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            boolean autoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
             int batchCount = 0;
@@ -95,10 +93,7 @@ public abstract class BaseUpdateHandler {
                     fillAutoIncrement(models, stmt.getStatement());
                 }
             }
-            conn.commit();
-            conn.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new DataSupportException("操作数据库出错！", e);
+            conn.setAutoCommit(autoCommit);
         } finally {
             DBUtils.close(stmt);
         }

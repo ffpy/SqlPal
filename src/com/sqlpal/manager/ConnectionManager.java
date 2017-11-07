@@ -29,7 +29,7 @@ public class ConnectionManager {
     /**
      * 初始化
      */
-    public static void init() throws ConnectionException {
+    public static void init() throws SQLException {
         freeConnections = new ConcurrentLinkedQueue<>();
         waitingThreads = new ConcurrentLinkedQueue<>();
         usedConnections = new ConcurrentHashMap<>();
@@ -54,7 +54,7 @@ public class ConnectionManager {
     /**
      * 关闭所有连接
      */
-    public static void destroy() throws ConnectionException {
+    public static void destroy() throws SQLException {
         // 释放等待线程
         if (waitingThreads != null) {
             for (Thread thread : waitingThreads) {
@@ -100,13 +100,21 @@ public class ConnectionManager {
         Connection conn = usedConnections.get(Thread.currentThread().getId());
         if (conn == null) {
             // 获取空闲连接
-            conn = getFreeConnection();
+            try {
+                conn = getFreeConnection();
+            } catch (SQLException e) {
+                throw new ConnectionException("请求连接出错");
+            }
             if (conn == null) {
                 // 进入等待队列
                 addWaitThread(Thread.currentThread());
                 LockSupport.parkUntil(maxWait * 1000);
                 // 再次尝试获取连接
-                conn = getFreeConnection();
+                try {
+                    conn = getFreeConnection();
+                } catch (SQLException e) {
+                    throw new ConnectionException("请求连接出错");
+                }
                 if (conn == null) {
                     if (Thread.currentThread().isInterrupted()) {
                         throw new ConnectionException("请求连接失败");
@@ -144,7 +152,7 @@ public class ConnectionManager {
     /**
      * 获取空闲连接
      */
-    private synchronized static Connection getFreeConnection() throws ConnectionException {
+    private synchronized static Connection getFreeConnection() throws SQLException {
         Connection conn = freeConnections.poll();
         if (conn == null) {
             conn = createConnection();
@@ -155,7 +163,7 @@ public class ConnectionManager {
     /**
      * 初始化连接池
      */
-    private static void initConnectionPool() throws ConnectionException {
+    private static void initConnectionPool() throws SQLException {
         for (int i = 0; i < initSize; i++) {
             Connection conn = createConnection();
             freeConnections.offer(conn);
@@ -165,36 +173,28 @@ public class ConnectionManager {
     /**
      * 创建连接
      */
-    private static Connection createConnection() throws ConnectionException {
+    private static Connection createConnection() throws SQLException {
         Configuration configuration = ConfigurationManager.getConfiguration();
-        try {
-            synchronized (sizeObj) {
-                // 当前连接数不能超过最大连接数
-                if (curSize >= maxSize) return null;
-            }
-            Connection conn =  DriverManager.getConnection(configuration.getUrl(), configuration.getUsername(), configuration.getPassword());
-            synchronized (sizeObj) {
-                curSize++;
-            }
-            return conn;
-        } catch (SQLException e) {
-            throw new ConnectionException("获取数据库连接失败！", e);
+        synchronized (sizeObj) {
+            // 当前连接数不能超过最大连接数
+            if (curSize >= maxSize) return null;
         }
+        Connection conn =  DriverManager.getConnection(configuration.getUrl(), configuration.getUsername(), configuration.getPassword());
+        synchronized (sizeObj) {
+            curSize++;
+        }
+        return conn;
     }
 
     /**
      * 关闭连接
      */
-    private static void closeConnection(Connection conn) throws ConnectionException {
+    private static void closeConnection(Connection conn) throws SQLException {
         if (conn == null) return;
-        try {
-            synchronized (sizeObj) {
-                curSize--;
-            }
-            conn.close();
-        } catch (SQLException e) {
-            throw new ConnectionException("关闭数据库连接出错！", e);
+        synchronized (sizeObj) {
+            curSize--;
         }
+        conn.close();
     }
 
     /**

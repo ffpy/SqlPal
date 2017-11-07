@@ -1,8 +1,8 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.exception.DataSupportException;
 import com.sun.istack.internal.NotNull;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -73,38 +73,38 @@ public class ClusterQuery {
      * @param modelClass Model类的Class
      * @return 返回查询结果
      */
-    public <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().find(modelClass, columns, conditions, orderBy, limit, offset);
     }
 
-    public <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().findFirst(modelClass, columns, conditions);
     }
 
-    public <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().findLast(modelClass, columns, conditions);
     }
 
-    public int count(@NotNull Class<? extends DataSupport> modelClass) throws DataSupportException {
+    public int count(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return new QueryHandler().aggregate(modelClass, int.class, new String[]{"COUNT(*)"}, conditions, null, 0, 0);
     }
 
-    public <T extends Number> T sum(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public <T extends Number> T sum(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "SUM(" + column + ")";
         return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
     }
 
-    public double average(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column) throws DataSupportException {
+    public double average(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column) throws SQLException {
         column = "AVG(" + column + ")";
         return new QueryHandler().aggregate(modelClass, double.class, new String[]{column}, conditions, null, 0, 0);
     }
 
-    public <T extends Number> T max(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public <T extends Number> T max(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "MAX(" + column + ")";
         return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
     }
 
-    public <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws DataSupportException {
+    public <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "MIN(" + column + ")";
         return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
     }

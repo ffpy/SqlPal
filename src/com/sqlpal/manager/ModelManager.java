@@ -6,7 +6,6 @@ import com.sqlpal.bean.Configuration;
 import com.sqlpal.bean.ContentValue;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
-import com.sqlpal.exception.DataSupportException;
 import com.sun.istack.internal.NotNull;
 
 import java.lang.reflect.Field;
@@ -112,7 +111,7 @@ public class ModelManager {
     /**
      * 遍历非null字段
      */
-    private static void listNotNullFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) throws DataSupportException {
+    private static void listNotNullFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) {
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -122,8 +121,7 @@ public class ModelManager {
                 if (obj != null) {
                     fieldListCallback.onList(field, field.getName(), obj);
                 }
-            } catch (IllegalAccessException e) {
-                throw new DataSupportException("读取字段失败！", e);
+            } catch (IllegalAccessException ignored) {
             }
         }
     }
@@ -131,7 +129,7 @@ public class ModelManager {
     /**
      * 获取所有字段
      */
-    public static List<ContentValue> getAllFields(@NotNull DataSupport model) throws DataSupportException {
+    public static List<ContentValue> getAllFields(@NotNull DataSupport model) {
         ArrayList<ContentValue> list = new ArrayList<>();
         listNotNullFields(model, (field, name, obj) -> list.add(new ContentValue(name, obj)));
         return list;
@@ -140,7 +138,7 @@ public class ModelManager {
     /**
      * 获取主键字段
      */
-    public static List<ContentValue> getPrimaryKeyFields(@NotNull DataSupport model) throws DataSupportException {
+    public static List<ContentValue> getPrimaryKeyFields(@NotNull DataSupport model) {
         ArrayList<ContentValue> list = new ArrayList<>();
         Class<? extends DataSupport> cls = model.getClass();
         for (String name : getPrimaryKeyNames(cls)) {
@@ -149,8 +147,7 @@ public class ModelManager {
                 field.setAccessible(true);
                 Object obj = field.get(model);
                 list.add(new ContentValue(field.getName(), obj));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new DataSupportException("读取字段失败", e);
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
         }
         if (list.isEmpty()) {
@@ -165,7 +162,7 @@ public class ModelManager {
      * @param primaryKeyFields 主键字段
      * @param notPrimaryKeyFields 非主键字段
      */
-    public static void getFields(@NotNull DataSupport model, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> notPrimaryKeyFields) throws DataSupportException {
+    public static void getFields(@NotNull DataSupport model, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> notPrimaryKeyFields) {
         listNotNullFields(model, (field, name, obj) -> {
             if (isPrimaryKeyField(field)) {
                 primaryKeyFields.add(new ContentValue(name, obj));
@@ -178,14 +175,14 @@ public class ModelManager {
     /**
      * 根据结果集实例化一个model
      */
-    public static <T extends DataSupport> T instance(@NotNull Class<? extends DataSupport> modelClass, @NotNull ResultSet rs) throws DataSupportException {
+    public static <T extends DataSupport> T instance(@NotNull Class<? extends DataSupport> modelClass, @NotNull ResultSet rs) {
         try {
             T model = (T) modelClass.newInstance();
             ModelManager.setFields(model, rs);
             return model;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new DataSupportException("实例化Model对象出错", e);
+        } catch (InstantiationException | IllegalAccessException ignored) {
         }
+        return null;
     }
 
     /**
@@ -193,7 +190,7 @@ public class ModelManager {
      * @param model model对象
      * @param rs 结果集
      */
-    public static void setFields(@NotNull DataSupport model, @NotNull ResultSet rs) throws DataSupportException {
+    public static void setFields(@NotNull DataSupport model, @NotNull ResultSet rs) {
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -212,9 +209,7 @@ public class ModelManager {
                 }
 
                 field.set(model, value);
-            } catch (SQLException ignored) {
-            } catch (IllegalAccessException e) {
-                throw new DataSupportException("设置字段值出错", e);
+            } catch (SQLException | IllegalAccessException ignored) {
             }
         }
     }

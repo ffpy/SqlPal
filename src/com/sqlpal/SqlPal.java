@@ -21,7 +21,7 @@ public class SqlPal {
             ModelManager.init();
 
             DataSupportClassManager.destroy();
-        } catch (ConnectionException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -35,7 +35,7 @@ public class SqlPal {
             ConnectionManager.destroy();
             TableNameManager.destroy();
             ModelManager.destroy();
-        } catch (ConnectionException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -62,6 +62,18 @@ public class SqlPal {
 
     public static void rollback(Savepoint savepoint) throws SQLException {
         ConnectionManager.getConnection().rollback(savepoint);
+    }
+
+    public static void setAutoCommit(boolean autoCommit) throws SQLException {
+        ConnectionManager.getConnection().setAutoCommit(autoCommit);
+    }
+
+    public static void getAutoCommit(boolean autoCommit) throws SQLException {
+        ConnectionManager.getConnection().getAutoCommit();
+    }
+
+    public static void commit() throws SQLException {
+        ConnectionManager.getConnection().commit();
     }
 
     public static Connection getConnection() {
