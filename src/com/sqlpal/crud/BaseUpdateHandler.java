@@ -29,13 +29,12 @@ public abstract class BaseUpdateHandler {
         return onInitFieldLists(model, fieldLists);
     }
 
-    protected int handle(@NotNull DataSupport model) throws DataSupportException {
+    protected final int handle(@NotNull DataSupport model) throws DataSupportException {
         if (!initFieldLists(model)) return 0;
 
-        Connection conn = null;
         MyStatement stmt = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             stmt = new MyStatement(conn, onCreateSql(model));
             for (List<ContentValue> fields : fieldLists) {
                 stmt.addValues(fields);
@@ -45,17 +44,15 @@ public abstract class BaseUpdateHandler {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt);
-            ConnectionManager.freeConnection(conn);
         }
     }
 
-    protected void handleAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
+    protected final void handleAll(@NotNull List<? extends DataSupport> models) throws DataSupportException {
         if (ListUtils.isEmpty(models)) return;
 
-        Connection conn = null;
         MyStatement stmt = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             conn.setAutoCommit(false);
 
             int batchCount = 0;
@@ -86,7 +83,6 @@ public abstract class BaseUpdateHandler {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt);
-            ConnectionManager.freeConnection(conn);
         }
     }
 }

@@ -24,10 +24,9 @@ class DeleteHandler extends BaseUpdateHandler {
     }
 
     int deleteAll(@NotNull Class<? extends DataSupport> modelClass, String... conditions) throws DataSupportException {
-        Connection conn = null;
         MyStatement stmt = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             String sql = SqlUtils.delete(TableNameManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null);
             stmt = new MyStatement(conn, sql);
             if (conditions.length > 1) {
@@ -38,7 +37,6 @@ class DeleteHandler extends BaseUpdateHandler {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt);
-            ConnectionManager.freeConnection(conn);
         }
     }
 

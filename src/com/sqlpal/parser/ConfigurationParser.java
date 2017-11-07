@@ -10,26 +10,34 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class ConfigurationParser extends DefaultHandler {
     private Configuration configuration = new Configuration();
+    private StringBuilder content = new StringBuilder();
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        content.delete(0, content.length());
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        content.append(new String(ch, start, length));
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        String value = content.toString();
         switch (qName) {
-            case "driver": configuration.setDriverName(attributes.getValue("value")); break;
-            case "username": configuration.setUsername(attributes.getValue("value")); break;
-            case "password": configuration.setPassword(attributes.getValue("value")); break;
-            case "host": configuration.setHost(attributes.getValue("value")); break;
-            case "port": configuration.setPort(Integer.parseInt(attributes.getValue("value"))); break;
-            case "dbname": configuration.setDbname(attributes.getValue("value")); break;
-            case "encoding": configuration.setEncoding(attributes.getValue("value")); break;
-            case "initSize": configuration.setInitSize(Integer.parseInt(attributes.getValue("value"))); break;
-            case "maxSize": configuration.setMaxSize(Integer.parseInt(attributes.getValue("value"))); break;
-            case "maxWati": configuration.setMaxWait(Integer.parseInt(attributes.getValue("value"))); break;
-            case "mapping": configuration.getMapping().add(attributes.getValue("class")); break;
+            case "driver": configuration.setDriverName(value); break;
+            case "url": configuration.setUrl(value); break;
+            case "username": configuration.setUsername(value); break;
+            case "password": configuration.setPassword(value); break;
+            case "initSize": configuration.setInitSize(Integer.parseInt(value)); break;
+            case "maxSize": configuration.setMaxSize(Integer.parseInt(value)); break;
+            case "maxWait": configuration.setMaxWait(Integer.parseInt(value)); break;
+            case "mapping": configuration.getMapping().add(value); break;
         }
     }
 
     public Configuration getConfig() {
-        configuration.buildUrl();
         return configuration;
     }
 }

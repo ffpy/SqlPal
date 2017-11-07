@@ -25,10 +25,9 @@ class UpdateHandler extends BaseUpdateHandler {
         List<ContentValue> fields = ModelManager.getAllFields(model);
         if (ListUtils.isEmpty(fields)) return 0;
 
-        Connection conn = null;
         MyStatement stmt = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             String sql = SqlUtils.update(model.getTableName(), conditions[0], fields);
             stmt = new MyStatement(conn, sql);
             stmt.addValues(fields);
@@ -40,7 +39,6 @@ class UpdateHandler extends BaseUpdateHandler {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt);
-            ConnectionManager.freeConnection(conn);
         }
     }
 

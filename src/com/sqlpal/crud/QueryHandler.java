@@ -40,11 +40,10 @@ class QueryHandler {
                                                         int limit, int offset) throws DataSupportException {
         String tableName = TableNameManager.getTableName(modelClass);
         List<T> list = new ArrayList<>();
-        Connection conn = null;
         MyStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
             stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
@@ -59,7 +58,6 @@ class QueryHandler {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt, rs);
-            ConnectionManager.freeConnection(conn);
         }
 
         return list;
@@ -69,11 +67,10 @@ class QueryHandler {
                                  @Nullable String[] columns, @Nullable String[] conditions, @Nullable String[] orderBy,
                                  int limit, int offset) throws DataSupportException {
         String tableName = TableNameManager.getTableName(modelClass);
-        Connection conn = null;
         MyStatement stmt = null;
         ResultSet rs = null;
         try {
-            conn = ConnectionManager.getConnection();
+            Connection conn = ConnectionManager.getConnection();
             String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
             stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
@@ -89,6 +86,8 @@ class QueryHandler {
                                 return (T) Integer.valueOf(s);
                             case "double":
                                 return (T) Double.valueOf(s);
+                            default:
+                                throw new RuntimeException("不支持的类型" + columnType.getName() + "，请使用int.class或double.class");
                         }
                     } catch (NumberFormatException ignored) {
                     }
@@ -100,17 +99,13 @@ class QueryHandler {
                     return (T) Integer.valueOf(0);
                 case "double":
                     return (T) Double.valueOf(0);
+                default:
+                    throw new RuntimeException("不支持的类型" + columnType.getName() + "，请使用int.class或double.class");
             }
-//            try {
-//                return columnType.newInstance();
-//            } catch (InstantiationException | IllegalAccessException ignored) {
-//            }
-            return null;
         } catch (SQLException e) {
             throw new DataSupportException("操作数据库出错！", e);
         } finally {
             DBUtils.close(stmt, rs);
-            ConnectionManager.freeConnection(conn);
         }
     }
 }
