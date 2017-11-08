@@ -24,9 +24,16 @@ class DeleteHandler extends BaseUpdateHandler {
     }
 
     int deleteAll(@NotNull Class<? extends DataSupport> modelClass, String... conditions) throws SQLException {
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             String sql = SqlUtils.delete(TableNameManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null);
             stmt = new MyStatement(conn, sql);
             if (conditions.length > 1) {
@@ -35,6 +42,10 @@ class DeleteHandler extends BaseUpdateHandler {
             return stmt.executeUpdate();
         } finally {
             DBUtils.close(stmt);
+            // 释放自动请求的连接
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
     }
 

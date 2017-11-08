@@ -47,6 +47,7 @@ class QueryHandler {
         ResultSet rs = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
             if (conn == null) {
                 isRequestConnection = true;
                 ConnectionManager.requestConnection();
@@ -65,6 +66,7 @@ class QueryHandler {
             }
         } finally {
             DBUtils.close(stmt, rs);
+            // 释放自动请求的连接
             if (isRequestConnection) {
                 ConnectionManager.freeConnection();
             }
@@ -82,6 +84,7 @@ class QueryHandler {
         ResultSet rs = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
             if (conn == null) {
                 isRequestConnection = true;
                 ConnectionManager.requestConnection();
@@ -132,13 +135,14 @@ class QueryHandler {
             }
         } finally {
             DBUtils.close(stmt, rs);
+            // 释放自动请求的连接
             if (isRequestConnection) {
                 ConnectionManager.freeConnection();
             }
         }
     }
 
-    public Statement executeQuery(@NotNull String[] conditions) throws SQLException {
+    Statement executeQuery(@NotNull String[] conditions) throws SQLException {
         if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
 
         Connection conn = ConnectionManager.getConnection();

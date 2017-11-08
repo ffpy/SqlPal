@@ -20,14 +20,21 @@ class UpdateHandler extends BaseUpdateHandler {
         return handle(model, false);
     }
 
-    public int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
+    int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
         if (conditions.length == 0) return 0;
         List<ContentValue> fields = ModelManager.getAllFields(model);
         if (EmptyUtlis.isEmpty(fields)) return 0;
 
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             String sql = SqlUtils.update(model.getTableName(), conditions[0], fields);
             stmt = new MyStatement(conn, sql);
             stmt.addValues(fields);
@@ -37,6 +44,10 @@ class UpdateHandler extends BaseUpdateHandler {
             return stmt.executeUpdate();
         } finally {
             DBUtils.close(stmt);
+            // 释放自动请求的连接
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
     }
 
@@ -44,7 +55,7 @@ class UpdateHandler extends BaseUpdateHandler {
         handleAll(models, false);
     }
 
-    public int executeUpdate(@NotNull String[] conditions) throws SQLException {
+    int executeUpdate(@NotNull String[] conditions) throws SQLException {
         if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
 
         MyStatement stmt = null;

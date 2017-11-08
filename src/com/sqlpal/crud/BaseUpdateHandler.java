@@ -41,6 +41,7 @@ public abstract class BaseUpdateHandler {
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
             if (conn == null) {
                 isRequestConnection = true;
                 ConnectionManager.requestConnection();
@@ -60,6 +61,7 @@ public abstract class BaseUpdateHandler {
             return res;
         } finally {
             DBUtils.close(stmt);
+            // 释放自动请求的连接
             if (isRequestConnection) {
                 ConnectionManager.freeConnection();
             }
@@ -73,6 +75,7 @@ public abstract class BaseUpdateHandler {
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            // 自动请求连接
             if (conn == null) {
                 isRequestConnection = true;
                 ConnectionManager.requestConnection();
@@ -112,6 +115,7 @@ public abstract class BaseUpdateHandler {
             conn.setAutoCommit(autoCommit);
         } finally {
             DBUtils.close(stmt);
+            // 释放自动请求的连接
             if (isRequestConnection) {
                 ConnectionManager.freeConnection();
             }
