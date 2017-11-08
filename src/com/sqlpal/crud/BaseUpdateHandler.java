@@ -1,5 +1,6 @@
 package com.sqlpal.crud;
 
+import com.sqlpal.MyStatement;
 import com.sqlpal.bean.ContentValue;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
@@ -36,9 +37,15 @@ public abstract class BaseUpdateHandler {
     protected final int handle(@NotNull DataSupport model, boolean isInsert) throws SQLException {
         if (!initFieldLists(model)) return 0;
 
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             stmt = new MyStatement(conn, onCreateSql(model));
             for (List<ContentValue> fields : fieldLists) {
                 stmt.addValues(fields);
@@ -47,21 +54,30 @@ public abstract class BaseUpdateHandler {
 
             // 填充自增字段
             if (isInsert) {
-                fillAutoIncrement(model, stmt.getStatement());
+                fillAutoIncrement(model, stmt);
             }
 
             return res;
         } finally {
             DBUtils.close(stmt);
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
     }
 
     protected final void handleAll(@NotNull List<? extends DataSupport> models, boolean isInsert) throws SQLException {
         if (EmptyUtlis.isEmpty(models)) return;
 
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             boolean autoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
@@ -82,7 +98,7 @@ public abstract class BaseUpdateHandler {
                 if (++batchCount % maxBatchCount == 0) {
                     stmt.executeBatch();
 
-                    fillAutoIncrement(models, stmt.getStatement());
+                    fillAutoIncrement(models, stmt);
                 }
             }
 
@@ -90,12 +106,15 @@ public abstract class BaseUpdateHandler {
                 stmt.executeBatch();
                 // 填充自增字段
                 if (isInsert) {
-                    fillAutoIncrement(models, stmt.getStatement());
+                    fillAutoIncrement(models, stmt);
                 }
             }
             conn.setAutoCommit(autoCommit);
         } finally {
             DBUtils.close(stmt);
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.sqlpal.crud;
 
+import com.sqlpal.MyStatement;
 import com.sqlpal.bean.ContentValue;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
@@ -49,6 +50,9 @@ class UpdateHandler extends BaseUpdateHandler {
         MyStatement stmt = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            if (conn == null) {
+                throw new RuntimeException("请先执行Sql.begin()以获取连接");
+            }
             stmt = new MyStatement(conn, conditions[0]);
             if (conditions.length > 1) {
                 stmt.addValues(conditions, 1);

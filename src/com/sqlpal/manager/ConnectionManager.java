@@ -1,5 +1,6 @@
 package com.sqlpal.manager;
 
+import com.sqlpal.AutoConnection;
 import com.sqlpal.bean.Configuration;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.exception.ConnectionException;
@@ -20,9 +21,9 @@ public class ConnectionManager {
     private static int maxSize;         // 连接池最大连接数
     private static int curSize;         // 连接池当前连接数
     private static int maxWait;         // 等待连接分配的最长时间，秒
-    private static ConcurrentLinkedQueue<Connection> freeConnections;       // 空闲连接
-    private static ConcurrentLinkedQueue<Thread> waitingThreads;            // 等待分配连接的线程
-    private static ConcurrentHashMap<Long, Connection> usedConnections;     // 正在使用的连接
+    private static ConcurrentLinkedQueue<AutoConnection> freeConnections;       // 空闲连接
+    private static ConcurrentLinkedQueue<Thread> waitingThreads;                // 等待分配连接的线程
+    private static ConcurrentHashMap<Long, AutoConnection> usedConnections;     // 正在使用的连接
     private static final Object sizeObj = new Object();
     private static final Object waitThreadObj = new Object();
 
@@ -85,11 +86,7 @@ public class ConnectionManager {
      * 获取当前线程的连接
      */
     public static Connection getConnection() {
-        Connection conn = usedConnections.get(Thread.currentThread().getId());
-        if (conn == null) {
-            throw new RuntimeException("当前线程没有获取连接，请先调用Sql.begin()以获取连接");
-        }
-        return conn;
+        return usedConnections.get(Thread.currentThread().getId());
     }
 
     /**
@@ -97,13 +94,13 @@ public class ConnectionManager {
      */
     public static void requestConnection() throws ConnectionException {
         // 当前线程是否持有可用连接
-        Connection conn = usedConnections.get(Thread.currentThread().getId());
+        AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
         if (conn == null) {
             // 获取空闲连接
             try {
                 conn = getFreeConnection();
             } catch (SQLException e) {
-                throw new ConnectionException("请求连接出错");
+                throw new ConnectionException("请求连接出错", e);
             }
             if (conn == null) {
                 // 进入等待队列
@@ -113,7 +110,7 @@ public class ConnectionManager {
                 try {
                     conn = getFreeConnection();
                 } catch (SQLException e) {
-                    throw new ConnectionException("请求连接出错");
+                    throw new ConnectionException("请求连接出错", e);
                 }
                 if (conn == null) {
                     if (Thread.currentThread().isInterrupted()) {
@@ -133,8 +130,10 @@ public class ConnectionManager {
      */
     public static void freeConnection() {
         // 获取当前线程的连接
-        Connection conn = usedConnections.get(Thread.currentThread().getId());
+        AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
         if (conn != null) {
+            // 关闭事务
+
             // 移除并添加到空闲队列
             usedConnections.remove(Thread.currentThread().getId());
             freeConnections.offer(conn);
@@ -152,8 +151,8 @@ public class ConnectionManager {
     /**
      * 获取空闲连接
      */
-    private synchronized static Connection getFreeConnection() throws SQLException {
-        Connection conn = freeConnections.poll();
+    private synchronized static AutoConnection getFreeConnection() throws SQLException {
+        AutoConnection conn = freeConnections.poll();
         if (conn == null) {
             conn = createConnection();
         }
@@ -165,7 +164,7 @@ public class ConnectionManager {
      */
     private static void initConnectionPool() throws SQLException {
         for (int i = 0; i < initSize; i++) {
-            Connection conn = createConnection();
+            AutoConnection conn = createConnection();
             freeConnections.offer(conn);
         }
     }
@@ -173,7 +172,7 @@ public class ConnectionManager {
     /**
      * 创建连接
      */
-    private static Connection createConnection() throws SQLException {
+    private static AutoConnection createConnection() throws SQLException {
         Configuration configuration = ConfigurationManager.getConfiguration();
         synchronized (sizeObj) {
             // 当前连接数不能超过最大连接数
@@ -183,7 +182,7 @@ public class ConnectionManager {
         synchronized (sizeObj) {
             curSize++;
         }
-        return conn;
+        return new com.sqlpal.manager.MyConnection(conn);
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.sqlpal.exception;
 
-public class ConnectionException extends Exception {
+import java.sql.SQLException;
+
+public class ConnectionException extends SQLException {
 
     public ConnectionException() {
     }

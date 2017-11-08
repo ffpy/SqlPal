@@ -1,5 +1,6 @@
 package com.sqlpal.crud;
 
+import com.sqlpal.MyStatement;
 import com.sqlpal.bean.ContentValue;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;

@@ -1,8 +1,10 @@
 import com.sqlpal.SqlPal;
-import com.sqlpal.exception.ConnectionException;
+import com.sqlpal.crud.DataSupport;
 import entity.News;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Main {
 
@@ -10,17 +12,18 @@ public class Main {
         SqlPal.init();
 
         try {
-            SqlPal.begin();
 
-            News news = new News();
-            news.setId(816);
-            news.setTitle("aaa");
-            news.save();
-
-            SqlPal.end();
-        } catch (SQLException | ConnectionException e) {
+            Statement stmt = DataSupport.executeQuery("select * from news");
+            ResultSet rs = stmt.getResultSet();
+            while (rs.next()) {
+                System.out.println(rs.getString("title"));
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            SqlPal.end();
         }
+
 
         SqlPal.destroy();
     }

@@ -4,6 +4,7 @@ import com.sqlpal.manager.TableNameManager;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 
@@ -103,7 +104,7 @@ public abstract class DataSupport {
         return new ClusterQuery().min(modelClass, column, columnType);
     }
 
-    public static Cursor executeQuery(@NotNull String... condition) throws SQLException {
+    public static Statement executeQuery(@NotNull String... condition) throws SQLException {
         return new QueryHandler().executeQuery(condition);
     }
 

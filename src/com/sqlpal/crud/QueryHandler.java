@@ -1,5 +1,6 @@
 package com.sqlpal.crud;
 
+import com.sqlpal.MyStatement;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
@@ -41,10 +42,16 @@ class QueryHandler {
                                                         int limit, int offset) throws SQLException {
         String tableName = TableNameManager.getTableName(modelClass);
         List<T> models = new ArrayList<>();
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         ResultSet rs = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
             stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
@@ -58,6 +65,9 @@ class QueryHandler {
             }
         } finally {
             DBUtils.close(stmt, rs);
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
 
         return models;
@@ -67,10 +77,16 @@ class QueryHandler {
                                  @Nullable String[] columns, @Nullable String[] conditions, @Nullable String[] orderBy,
                                  int limit, int offset) throws SQLException {
         String tableName = TableNameManager.getTableName(modelClass);
+        boolean isRequestConnection = false;
         MyStatement stmt = null;
         ResultSet rs = null;
         try {
             Connection conn = ConnectionManager.getConnection();
+            if (conn == null) {
+                isRequestConnection = true;
+                ConnectionManager.requestConnection();
+                conn = ConnectionManager.getConnection();
+            }
             String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
             stmt = new MyStatement(conn, sql);
             if (conditions != null && conditions.length > 1) {
@@ -116,18 +132,24 @@ class QueryHandler {
             }
         } finally {
             DBUtils.close(stmt, rs);
+            if (isRequestConnection) {
+                ConnectionManager.freeConnection();
+            }
         }
     }
 
-    public Cursor executeQuery(@NotNull String[] conditions) throws SQLException {
+    public Statement executeQuery(@NotNull String[] conditions) throws SQLException {
         if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
 
         Connection conn = ConnectionManager.getConnection();
+        if (conn == null) {
+            throw new RuntimeException("请先执行Sql.begin()以获取连接");
+        }
         MyStatement stmt = new MyStatement(conn, conditions[0]);
         if (conditions.length > 1) {
             stmt.addValues(conditions, 1);
         }
-        ResultSet rs = stmt.executeQuery();
-        return new Cursor(stmt, rs);
+        stmt.executeQuery();
+        return stmt;
     }
 }
