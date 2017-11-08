@@ -3,7 +3,7 @@ package com.sqlpal.manager;
 import com.sqlpal.annotation.AutoIncrement;
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.bean.Configuration;
-import com.sqlpal.bean.ContentValue;
+import com.sqlpal.bean.ModelField;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
 import com.sun.istack.internal.NotNull;
@@ -129,31 +129,29 @@ public class ModelManager {
     /**
      * 获取所有字段
      */
-    public static List<ContentValue> getAllFields(@NotNull DataSupport model) {
-        ArrayList<ContentValue> list = new ArrayList<>();
-        listNotNullFields(model, (field, name, obj) -> list.add(new ContentValue(name, obj)));
-        return list;
+    public static void getAllFields(@NotNull DataSupport model, @NotNull List<ModelField> allFields) {
+        allFields.clear();
+        listNotNullFields(model, (field, name, obj) -> allFields.add(new ModelField(name, obj)));
     }
 
     /**
      * 获取主键字段
      */
-    public static List<ContentValue> getPrimaryKeyFields(@NotNull DataSupport model) {
-        ArrayList<ContentValue> list = new ArrayList<>();
+    public static void getPrimaryKeyFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields) {
+        primaryKeyFields.clear();
         Class<? extends DataSupport> cls = model.getClass();
         for (String name : getPrimaryKeyNames(cls)) {
             try {
                 Field field = cls.getDeclaredField(name);
                 field.setAccessible(true);
                 Object obj = field.get(model);
-                list.add(new ContentValue(field.getName(), obj));
+                primaryKeyFields.add(new ModelField(field.getName(), obj));
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
         }
-        if (list.isEmpty()) {
+        if (primaryKeyFields.isEmpty()) {
             throw new RuntimeException("找不到主键，请为" + model.getClass() + "添加PrimaryKey注解以指定主键");
         }
-        return list;
     }
 
     /**
@@ -162,12 +160,14 @@ public class ModelManager {
      * @param primaryKeyFields 主键字段
      * @param notPrimaryKeyFields 非主键字段
      */
-    public static void getFields(@NotNull DataSupport model, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> notPrimaryKeyFields) {
+    public static void getFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> notPrimaryKeyFields) {
+        primaryKeyFields.clear();
+        notPrimaryKeyFields.clear();
         listNotNullFields(model, (field, name, obj) -> {
             if (isPrimaryKeyField(field)) {
-                primaryKeyFields.add(new ContentValue(name, obj));
+                primaryKeyFields.add(new ModelField(name, obj));
             } else {
-                notPrimaryKeyFields.add(new ContentValue(name, obj));
+                notPrimaryKeyFields.add(new ModelField(name, obj));
             }
         });
     }

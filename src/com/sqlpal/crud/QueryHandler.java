@@ -1,12 +1,10 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.MyStatement;
-import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
-import com.sqlpal.util.DBUtils;
 import com.sqlpal.util.EmptyUtlis;
 import com.sqlpal.util.SqlUtils;
+import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -37,123 +35,101 @@ class QueryHandler {
         return find(modelClass, null, null, null, 0, 0);
     }
 
-    <T extends DataSupport> List <T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
+    <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                                         @Nullable String[] conditions, @Nullable String[] orderBy,
                                                         int limit, int offset) throws SQLException {
-        String tableName = TableNameManager.getTableName(modelClass);
-        List<T> models = new ArrayList<>();
-        boolean isRequestConnection = false;
-        MyStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            // 自动请求连接
-            if (conn == null) {
-                isRequestConnection = true;
-                ConnectionManager.requestConnection();
-                conn = ConnectionManager.getConnection();
+        return new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
+            @Override
+            public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+                return connection.prepareStatement(SqlUtils.find(
+                        TableNameManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
             }
-            String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
-            stmt = new MyStatement(conn, sql);
-            if (conditions != null && conditions.length > 1) {
-                stmt.addValues(conditions, 1);
-            }
-            rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                T model = ModelManager.instance(modelClass, rs);
-                if (model != null) models.add(model);
+            @Override
+            public void onAddValues(PreparedStatement statement) throws SQLException {
+                if (conditions != null && conditions.length > 1) {
+                    StatementUtils utils = new StatementUtils(statement);
+                    utils.addValues(conditions, 1);
+                }
             }
-        } finally {
-            DBUtils.close(stmt, rs);
-            // 释放自动请求的连接
-            if (isRequestConnection) {
-                ConnectionManager.freeConnection();
-            }
-        }
 
-        return models;
+            @Override
+            public List<T> onExecute(PreparedStatement statement) throws SQLException {
+                List<T> models = new ArrayList<>();
+                ResultSet rs = statement.executeQuery();
+                while (rs.next()) {
+                    T model = ModelManager.instance(modelClass, rs);
+                    if (model != null) models.add(model);
+                }
+                rs.close();
+                return models;
+            }
+        });
     }
 
     <T extends Number> T aggregate(@NotNull Class<? extends DataSupport> modelClass, @NotNull Class<T> columnType,
                                  @Nullable String[] columns, @Nullable String[] conditions, @Nullable String[] orderBy,
                                  int limit, int offset) throws SQLException {
-        String tableName = TableNameManager.getTableName(modelClass);
-        boolean isRequestConnection = false;
-        MyStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            // 自动请求连接
-            if (conn == null) {
-                isRequestConnection = true;
-                ConnectionManager.requestConnection();
-                conn = ConnectionManager.getConnection();
+        return new DataHandler().execute(new DefaultExecuteCallback<T>() {
+            @Override
+            public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+                return connection.prepareStatement(SqlUtils.find(
+                        TableNameManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
             }
-            String sql = SqlUtils.find(tableName, columns, conditions, orderBy, limit, offset);
-            stmt = new MyStatement(conn, sql);
-            if (conditions != null && conditions.length > 1) {
-                stmt.addValues(conditions, 1);
+
+            @Override
+            public void onAddValues(PreparedStatement statement) throws SQLException {
+                StatementUtils utils = new StatementUtils(statement);
+                utils.addValues(conditions, 1);
             }
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                String s = rs.getString(1);
-                if (!EmptyUtlis.isEmpty(s)) {
-                    try {
-                        switch (columnType.getName()) {
-                            case "short":
-                                return (T) Short.valueOf(s);
-                            case "int":
-                                return (T) Integer.valueOf(s);
-                            case "long":
-                                return (T) Long.valueOf(s);
-                            case "float":
-                                return (T) Float.valueOf(s);
-                            case "double":
-                                return (T) Double.valueOf(s);
-                            default:
-                                throw new RuntimeException("不支持的类型" + columnType.getName());
+
+            @Override
+            public T onExecute(PreparedStatement statement) throws SQLException {
+                ResultSet rs = statement.executeQuery();
+                T result = null;
+                if (rs.next()) {
+                    String s = rs.getString(1);
+                    if (!EmptyUtlis.isEmpty(s)) {
+                        try {
+                            switch (columnType.getName()) {
+                                case "short":
+                                    result = (T) Short.valueOf(s); break;
+                                case "int":
+                                    result = (T) Integer.valueOf(s); break;
+                                case "long":
+                                    result = (T) Long.valueOf(s); break;
+                                case "float":
+                                    result = (T) Float.valueOf(s); break;
+                                case "double":
+                                    result = (T) Double.valueOf(s); break;
+                                default:
+                                    throw new RuntimeException("不支持的类型" + columnType.getName());
+                            }
+                        } catch (NumberFormatException ignored) {
                         }
-                    } catch (NumberFormatException ignored) {
                     }
                 }
-            }
 
-            switch (columnType.getName()) {
-                case "short":
-                    return (T) Short.valueOf((short) 0);
-                case "int":
-                    return (T) Integer.valueOf(0);
-                case "long":
-                    return (T) Long.valueOf(0);
-                case "float":
-                    return (T) Float.valueOf(0);
-                case "double":
-                    return (T) Double.valueOf(0);
-                default:
-                    throw new RuntimeException("不支持的类型" + columnType.getName());
-            }
-        } finally {
-            DBUtils.close(stmt, rs);
-            // 释放自动请求的连接
-            if (isRequestConnection) {
-                ConnectionManager.freeConnection();
-            }
-        }
-    }
+                if (result == null) {
+                    switch (columnType.getName()) {
+                        case "short":
+                            result = (T) Short.valueOf((short) 0); break;
+                        case "int":
+                            result = (T) Integer.valueOf(0); break;
+                        case "long":
+                            result = (T) Long.valueOf(0); break;
+                        case "float":
+                            result = (T) Float.valueOf(0); break;
+                        case "double":
+                            result = (T) Double.valueOf(0); break;
+                        default:
+                            throw new RuntimeException("不支持的类型" + columnType.getName());
+                    }
+                }
 
-    Statement executeQuery(@NotNull String[] conditions) throws SQLException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
-
-        Connection conn = ConnectionManager.getConnection();
-        if (conn == null) {
-            throw new RuntimeException("请先执行Sql.begin()以获取连接");
-        }
-        MyStatement stmt = new MyStatement(conn, conditions[0]);
-        if (conditions.length > 1) {
-            stmt.addValues(conditions, 1);
-        }
-        stmt.executeQuery();
-        return stmt;
+                rs.close();
+                return result;
+            }
+        });
     }
 }

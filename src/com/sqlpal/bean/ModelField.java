@@ -1,13 +1,13 @@
 package com.sqlpal.bean;
 
-public class ContentValue {
+public class ModelField {
     private String name;
     private Object value;
 
-    public ContentValue() {
+    public ModelField() {
     }
 
-    public ContentValue(String name, Object value) {
+    public ModelField(String name, Object value) {
         this.name = name;
         this.value = value;
     }

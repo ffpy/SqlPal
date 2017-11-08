@@ -1,64 +1,72 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.MyStatement;
-import com.sqlpal.bean.ContentValue;
-import com.sqlpal.manager.ConnectionManager;
+import com.sqlpal.bean.ModelField;
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
-import com.sqlpal.util.DBUtils;
+import com.sqlpal.util.EmptyUtlis;
 import com.sqlpal.util.SqlUtils;
+import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-class DeleteHandler extends BaseUpdateHandler {
+class DeleteHandler extends DefaultExecuteCallback<Integer> {
+    private List<ModelField> primaryKeyFields = new ArrayList<>();
 
     int delete(DataSupport model) throws SQLException {
-        return handle(model, false);
+        return new DataHandler().execute(this, model);
     }
 
     void deleteAll(@NotNull List<? extends DataSupport> models) throws SQLException {
-        handleAll(models, false);
+        new DataHandler().executeBatch(this, models);
     }
 
-    int deleteAll(@NotNull Class<? extends DataSupport> modelClass, String... conditions) throws SQLException {
-        boolean isRequestConnection = false;
-        MyStatement stmt = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            // 自动请求连接
-            if (conn == null) {
-                isRequestConnection = true;
-                ConnectionManager.requestConnection();
-                conn = ConnectionManager.getConnection();
+    int deleteAll(@NotNull Class<? extends DataSupport> modelClass, @NotNull String... conditions) throws SQLException {
+        return new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
+            @Override
+            public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+                return connection.prepareStatement(SqlUtils.delete(
+                        TableNameManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null));
             }
-            String sql = SqlUtils.delete(TableNameManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null);
-            stmt = new MyStatement(conn, sql);
-            if (conditions.length > 1) {
-                stmt.addValues(conditions, 1);
+
+            @Override
+            public void onAddValues(PreparedStatement statement) throws SQLException {
+                if (conditions.length > 1) {
+                    StatementUtils utils = new StatementUtils(statement);
+                    utils.addValues(conditions, 1);
+                }
             }
-            return stmt.executeUpdate();
-        } finally {
-            DBUtils.close(stmt);
-            // 释放自动请求的连接
-            if (isRequestConnection) {
-                ConnectionManager.freeConnection();
+
+            @Override
+            public Integer onExecute(PreparedStatement statement) throws SQLException {
+                return statement.executeUpdate();
             }
-        }
+        });
     }
 
     @Override
-    protected String onCreateSql(DataSupport model) {
-        return SqlUtils.delete(model.getTableName(), getFields(0));
+    public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+        return connection.prepareStatement(SqlUtils.delete(model.getTableName(), primaryKeyFields));
     }
 
     @Override
-    protected boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) {
-        List<ContentValue> primaryKeyFields = ModelManager.getPrimaryKeyFields(model);
-        if (primaryKeyFields.isEmpty()) return false;
-        fieldLists.add(primaryKeyFields);
-        return true;
+    public boolean onGetValues(DataSupport model) throws SQLException {
+        ModelManager.getPrimaryKeyFields(model, primaryKeyFields);
+        return !EmptyUtlis.isEmpty(primaryKeyFields);
+    }
+
+    @Override
+    public void onAddValues(PreparedStatement statement) throws SQLException {
+        StatementUtils utils = new StatementUtils(statement);
+        utils.addValues(primaryKeyFields);
+    }
+
+    @Override
+    public Integer onExecute(PreparedStatement statement) throws SQLException {
+        return statement.executeUpdate();
     }
 }

@@ -33,6 +33,7 @@ public class ConfigurationParser extends DefaultHandler {
             case "initSize": configuration.setInitSize(Integer.parseInt(value)); break;
             case "maxSize": configuration.setMaxSize(Integer.parseInt(value)); break;
             case "maxWait": configuration.setMaxWait(Integer.parseInt(value)); break;
+            case "maxBatch": configuration.setMaxBatchCount(Integer.parseInt(value)); break;
             case "mapping": configuration.getMapping().add(value); break;
         }
     }

@@ -1,93 +1,79 @@
 package com.sqlpal.crud;
 
-import com.sqlpal.MyStatement;
-import com.sqlpal.bean.ContentValue;
-import com.sqlpal.manager.ConnectionManager;
+import com.sqlpal.bean.ModelField;
 import com.sqlpal.manager.ModelManager;
-import com.sqlpal.util.DBUtils;
 import com.sqlpal.util.EmptyUtlis;
 import com.sqlpal.util.SqlUtils;
+import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-class UpdateHandler extends BaseUpdateHandler {
+class UpdateHandler extends DefaultExecuteCallback<Integer> {
+    private List<ModelField> primaryKeyFields = new ArrayList<>();
+    private List<ModelField> updatedFields = new ArrayList<>();
 
     int update(@NotNull DataSupport model) throws SQLException {
-        return handle(model, false);
-    }
-
-    int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
-        if (conditions.length == 0) return 0;
-        List<ContentValue> fields = ModelManager.getAllFields(model);
-        if (EmptyUtlis.isEmpty(fields)) return 0;
-
-        boolean isRequestConnection = false;
-        MyStatement stmt = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            // 自动请求连接
-            if (conn == null) {
-                isRequestConnection = true;
-                ConnectionManager.requestConnection();
-                conn = ConnectionManager.getConnection();
-            }
-            String sql = SqlUtils.update(model.getTableName(), conditions[0], fields);
-            stmt = new MyStatement(conn, sql);
-            stmt.addValues(fields);
-            if (conditions.length > 1) {
-                stmt.addValues(conditions, 1);
-            }
-            return stmt.executeUpdate();
-        } finally {
-            DBUtils.close(stmt);
-            // 释放自动请求的连接
-            if (isRequestConnection) {
-                ConnectionManager.freeConnection();
-            }
-        }
+        return new DataHandler().execute(this, model);
     }
 
     void updateAll(@NotNull List<? extends DataSupport> models) throws SQLException {
-        handleAll(models, false);
+        new DataHandler().executeBatch(this, models);
     }
 
-    int executeUpdate(@NotNull String[] conditions) throws SQLException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+    int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
+        if (EmptyUtlis.isEmpty(conditions)) return 0;
+        List<ModelField> allFields = new ArrayList<>();
+        ModelManager.getAllFields(model, allFields);
+        if (EmptyUtlis.isEmpty(allFields)) return 0;
 
-        MyStatement stmt = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            if (conn == null) {
-                throw new RuntimeException("请先执行Sql.begin()以获取连接");
+        return new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
+
+            @Override
+            public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+                return connection.prepareStatement(SqlUtils.update(model.getTableName(), conditions[0], allFields));
             }
-            stmt = new MyStatement(conn, conditions[0]);
-            if (conditions.length > 1) {
-                stmt.addValues(conditions, 1);
+
+            @Override
+            public void onAddValues(PreparedStatement statement) throws SQLException {
+                StatementUtils utils = new StatementUtils(statement);
+                utils.addValues(allFields);
+                if (conditions.length > 1) {
+                    utils.addValues(conditions, 1);
+                }
             }
-            return stmt.executeUpdate();
-        } finally {
-            DBUtils.close(stmt);
-        }
+
+            @Override
+            public Integer onExecute(PreparedStatement statement) throws SQLException {
+                return statement.executeUpdate();
+            }
+        }, model);
     }
 
     @Override
-    protected String onCreateSql(DataSupport model) {
-        return SqlUtils.update(model.getTableName(), getFields(1), getFields(0));
+    public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
+        return connection.prepareStatement(SqlUtils.update(model.getTableName(), primaryKeyFields, updatedFields));
     }
 
     @Override
-    protected boolean onInitFieldLists(DataSupport model, List<List<ContentValue>> fieldLists) {
-        ArrayList<ContentValue> primaryKeyFields = new ArrayList<>();
-        ArrayList<ContentValue> updatedFields = new ArrayList<>();
+    public boolean onGetValues(DataSupport model) throws SQLException {
         ModelManager.getFields(model, primaryKeyFields, updatedFields);
-        if (primaryKeyFields.isEmpty() || updatedFields.isEmpty()) return false;
+        return !EmptyUtlis.isEmpty(primaryKeyFields) && !EmptyUtlis.isEmpty(updatedFields);
+    }
 
-        fieldLists.add(updatedFields);
-        fieldLists.add(primaryKeyFields);
-        return true;
+    @Override
+    public void onAddValues(PreparedStatement statement) throws SQLException {
+        StatementUtils utils = new StatementUtils(statement);
+        utils.addValues(updatedFields);
+        utils.addValues(primaryKeyFields);
+    }
+
+    @Override
+    public Integer onExecute(PreparedStatement statement) throws SQLException {
+        return statement.executeUpdate();
     }
 }

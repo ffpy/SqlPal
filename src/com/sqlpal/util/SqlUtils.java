@@ -1,6 +1,6 @@
 package com.sqlpal.util;
 
-import com.sqlpal.bean.ContentValue;
+import com.sqlpal.bean.ModelField;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -17,13 +17,13 @@ public class SqlUtils {
      * @param fields 要插入的字段列表
      * @return 返回插入语句
      */
-    public static String insert(@NotNull String tableName, @NotNull List<ContentValue> fields) {
+    public static String insert(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtlis.isEmpty(tableName) || fields.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO ").append(tableName).append("(");
 
-        for (ContentValue bean : fields) {
+        for (ModelField bean : fields) {
             sql.append(bean.getName()).append(",");
         }
         sql.deleteCharAt(sql.length() - 1);
@@ -44,10 +44,10 @@ public class SqlUtils {
      * @param fields 要查找的字段列表，用and连接
      * @return 返回删除语句
      */
-    public static String delete(@NotNull String tableName, @NotNull List<ContentValue> fields) {
+    public static String delete(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtlis.isEmpty(tableName) || fields.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
-        for (ContentValue bean : fields) {
+        for (ModelField bean : fields) {
             where.append(bean.getName()).append("=? and ");
         }
         where.delete(where.length() - 5, where.length());
@@ -78,11 +78,11 @@ public class SqlUtils {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    public static String update(@NotNull String tableName, @NotNull List<ContentValue> primaryKeyFields, @NotNull List<ContentValue> updatedFields) {
+    public static String update(@NotNull String tableName, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtlis.isEmpty(primaryKeyFields)) return "";
 
         StringBuilder where = new StringBuilder();
-        for (ContentValue bean : primaryKeyFields) {
+        for (ModelField bean : primaryKeyFields) {
             where.append(bean.getName()).append("=? and ");
         }
         where.delete(where.length() - 5, where.length());
@@ -97,13 +97,13 @@ public class SqlUtils {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    public static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ContentValue> updatedFields) {
+    public static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtlis.isEmpty(tableName) || EmptyUtlis.isEmpty(where) || EmptyUtlis.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(tableName).append(" SET ");
 
-        for (ContentValue bean : updatedFields) {
+        for (ModelField bean : updatedFields) {
             sql.append(bean.getName()).append("=?,");
         }
         sql.deleteCharAt(sql.length() - 1);

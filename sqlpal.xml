@@ -7,6 +7,7 @@
     <initSize>1</initSize>
     <maxSize>10</maxSize>
     <maxWait>30</maxWait>
+    <maxBatch>10000</maxBatch>
     <list>
         <mapping>entity.User</mapping>
         <mapping>entity.News</mapping>

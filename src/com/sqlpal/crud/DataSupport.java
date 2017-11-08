@@ -105,10 +105,10 @@ public abstract class DataSupport {
     }
 
     public static Statement executeQuery(@NotNull String... condition) throws SQLException {
-        return new QueryHandler().executeQuery(condition);
+        return new DataHandler().executeQuery(condition);
     }
 
     public static int executeUpdate(@NotNull String... condition) throws SQLException {
-        return new UpdateHandler().executeUpdate(condition);
+        return new DataHandler().executeUpdate(condition);
     }
 }
