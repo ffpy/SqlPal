@@ -9,6 +9,7 @@ import com.sun.istack.internal.NotNull;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
@@ -93,6 +94,7 @@ public class ConnectionManager {
      * 为当前线程请求连接
      */
     public static void requestConnection() throws ConnectionException {
+        System.out.println(Thread.currentThread().getName() + " request connection");
         // 当前线程是否持有可用连接
         AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
         if (conn == null) {
@@ -105,7 +107,8 @@ public class ConnectionManager {
             if (conn == null) {
                 // 进入等待队列
                 addWaitThread(Thread.currentThread());
-                LockSupport.parkUntil(maxWait * 1000);
+//                LockSupport.parkUntil(Calendar.getInstance().getTimeInMillis() + maxWait);
+                LockSupport.park();
                 // 再次尝试获取连接
                 try {
                     conn = getFreeConnection();
@@ -129,6 +132,7 @@ public class ConnectionManager {
      * 释放当前线程的连接
      */
     public static void freeConnection() {
+        System.out.println(Thread.currentThread().getName() + " free connection");
         // 获取当前线程的连接
         AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
         if (conn != null) {
@@ -182,6 +186,7 @@ public class ConnectionManager {
         synchronized (sizeObj) {
             curSize++;
         }
+        System.out.println("curSize: " + curSize);
         return new com.sqlpal.manager.MyConnection(conn);
     }
 
@@ -200,13 +205,18 @@ public class ConnectionManager {
      * 获取最久的等待线程
      */
     private static Thread getWaitThread() {
-        return waitingThreads.poll();
+        Thread thread = waitingThreads.poll();
+        if (thread != null) {
+            System.out.println(thread.getName() + " is ready");
+        }
+        return thread;
     }
 
     /**
      * 添加等待线程
      */
     private static void addWaitThread(@NotNull Thread thread) {
+        System.out.println(thread.getName() + " is waiting...");
         waitingThreads.offer(thread);
     }
 }

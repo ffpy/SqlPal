@@ -3,15 +3,19 @@
     <driver>com.mysql.jdbc.Driver</driver>
     <url>jdbc:mysql://localhost:3306/test?&amp;useUnicode=true&amp;characterEncoding=utf-8</url>
     <username>root</username>
-    <password>123456</password>
+    <password>root</password>
     <initSize>1</initSize>
-    <maxSize>10</maxSize>
-    <maxWait>30</maxWait>
+    <maxSize>1</maxSize>
+    <maxWait>300000</maxWait>
     <maxBatch>10000</maxBatch>
     <list>
         <mapping>entity.User</mapping>
         <mapping>entity.News</mapping>
         <mapping>entity.NewsDetail</mapping>
         <mapping>entity.NewsComment</mapping>
+        <mapping>entity.T1</mapping>
+        <mapping>entity.T2</mapping>
+        <mapping>entity.T3</mapping>
+        <mapping>entity.T4</mapping>
     </list>
 </sqlpal>
