@@ -3,7 +3,6 @@ package com.sqlpal.manager;
 import com.sqlpal.AutoConnection;
 import com.sqlpal.bean.Configuration;
 import com.sqlpal.exception.ConfigurationException;
-import com.sqlpal.exception.ConnectionException;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.Connection;
@@ -18,205 +17,218 @@ import java.util.concurrent.locks.LockSupport;
  * 数据库连接管理器
  */
 public class ConnectionManager {
-    private static int initSize;        // 连接池初始化连接数
-    private static int maxSize;         // 连接池最大连接数
-    private static int curSize;         // 连接池当前连接数
-    private static int maxWait;         // 等待连接分配的最长时间，秒
-    private static ConcurrentLinkedQueue<AutoConnection> freeConnections;       // 空闲连接
-    private static ConcurrentLinkedQueue<Thread> waitingThreads;                // 等待分配连接的线程
-    private static ConcurrentHashMap<Long, AutoConnection> usedConnections;     // 正在使用的连接
-    private static final Object sizeObj = new Object();
-    private static final Object waitThreadObj = new Object();
+    private static AllotThread mAllotThread;    // 分配线程
 
     /**
      * 初始化
      */
     public static void init() throws SQLException {
-        freeConnections = new ConcurrentLinkedQueue<>();
-        waitingThreads = new ConcurrentLinkedQueue<>();
-        usedConnections = new ConcurrentHashMap<>();
-
-        Configuration configuration = ConfigurationManager.getConfiguration();
+        Configuration config = ConfigurationManager.getConfiguration();
+        // 加载驱动程序
         try {
-            // 加载驱动程序
-            Class.forName(configuration.getDriverName());
-
-            // 初始化参数
-            ConnectionManager.initSize = configuration.getInitSize();
-            ConnectionManager.maxSize = configuration.getMaxSize();
-            ConnectionManager.maxWait = configuration.getMaxWait();
-
-            // 初始化连接池
-            initConnectionPool();
+            Class.forName(config.getDriverName());
         } catch (ClassNotFoundException e) {
-            throw new ConfigurationException("找不到" + configuration.getDriverName());
+            throw new ConfigurationException("找不到" + config.getDriverName());
         }
+
+        // 创建并执行分配线程
+        mAllotThread = new AllotThread();
+        mAllotThread.setDaemon(true);
+        mAllotThread.start();
     }
 
     /**
      * 关闭所有连接
      */
     public static void destroy() throws SQLException {
-        // 释放等待线程
-        if (waitingThreads != null) {
-            for (Thread thread : waitingThreads) {
-                LockSupport.unpark(thread);
-            }
-            waitingThreads.clear();
-            waitingThreads = null;
-        }
-        // 释放正在使用的线程
-        if (usedConnections != null) {
-            for (Connection conn : freeConnections) {
-                closeConnection(conn);
-            }
-            usedConnections.clear();
-            usedConnections = null;
-        }
-        // 释放空闲线程
-        if (freeConnections != null) {
-            for (Connection conn : freeConnections) {
-                closeConnection(conn);
-            }
-            freeConnections.clear();
-            freeConnections = null;
-        }
+        // 停止分配线程
+        mAllotThread.stopWork();
+        mAllotThread = null;
     }
 
     /**
      * 获取当前线程的连接
      */
     public static Connection getConnection() {
-        return usedConnections.get(Thread.currentThread().getId());
+        return mAllotThread.getConnection(Thread.currentThread());
     }
 
     /**
-     * 为当前线程请求连接
+     * 当前线程请求连接
      */
-    public static void requestConnection() throws ConnectionException {
-        System.out.println(Thread.currentThread().getName() + " request connection");
-        // 当前线程是否持有可用连接
-        AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
-        if (conn == null) {
-            // 获取空闲连接
-            try {
-                conn = getFreeConnection();
-            } catch (SQLException e) {
-                throw new ConnectionException("请求连接出错", e);
-            }
-            if (conn == null) {
-                // 进入等待队列
-                addWaitThread(Thread.currentThread());
-//                LockSupport.parkUntil(Calendar.getInstance().getTimeInMillis() + maxWait);
-                LockSupport.park();
-                // 再次尝试获取连接
-                try {
-                    conn = getFreeConnection();
-                } catch (SQLException e) {
-                    throw new ConnectionException("请求连接出错", e);
-                }
-                if (conn == null) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        throw new ConnectionException("请求连接失败");
-                    } else {
-                        throw new ConnectionException("等待连接分配超时");
-                    }
-                }
-            }
-        }
-
-        usedConnections.put(Thread.currentThread().getId(), conn);
+    public static void requestConnection() {
+        mAllotThread.waitForConnection(Thread.currentThread());
     }
 
     /**
      * 释放当前线程的连接
      */
     public static void freeConnection() {
-        System.out.println(Thread.currentThread().getName() + " free connection");
-        // 获取当前线程的连接
-        AutoConnection conn = usedConnections.get(Thread.currentThread().getId());
-        if (conn != null) {
-            // 关闭事务
+        mAllotThread.freeConnection(Thread.currentThread());
+    }
 
-            // 移除并添加到空闲队列
-            usedConnections.remove(Thread.currentThread().getId());
-            freeConnections.offer(conn);
 
-            // 唤醒等待连接的线程
-            synchronized (waitThreadObj) {
-                Thread thread = getWaitThread();
-                if (thread != null) {
-                    LockSupport.unpark(thread);
+    /**
+     * 分配线程
+     */
+    private static class AllotThread extends Thread {
+        private boolean working = true;
+        private Thread mThread;
+        private final Configuration config = ConfigurationManager.getConfiguration();
+        private final ConcurrentLinkedQueue<AutoConnection> freeConnections = new ConcurrentLinkedQueue<>();      // 空闲连接
+        private final ConcurrentLinkedQueue<Thread> waitingThreads = new ConcurrentLinkedQueue<>();               // 等待分配连接的线程
+        private final ConcurrentHashMap<Long, AutoConnection> usedConnections = new ConcurrentHashMap<>();        // 正在使用的连接
+        private final int initSize = config.getInitSize();          // 连接池初始化连接数
+        private final int maxSize = config.getMaxSize();            // 连接池最大连接数
+        private final int maxWait = config.getMaxWait();            // 等待连接分配的最长时间，毫秒
+        private int curSize = 0;                                    // 连接池当前连接数
+
+        @Override
+        public void run() {
+            mThread = Thread.currentThread();
+            init();
+
+            while (working) {
+                if (waitingThreads.isEmpty()) {
+                    LockSupport.park();
+                    continue;
                 }
+
+                AutoConnection conn = getFreeConnection();
+                if (conn == null) {
+                    LockSupport.park();
+                    continue;
+                }
+
+                Thread thread = waitingThreads.poll();
+
+                // 给线程分配连接
+                usedConnections.put(thread.getId(), conn);
+                LockSupport.unpark(thread);
+            }
+
+            freeResources();
+        }
+
+        /**
+         * 初始化
+         */
+        private void init() {
+            // 初始化连接池
+            for (int i = 0; i < initSize; i++) {
+                AutoConnection conn = createConnection();
+                freeConnections.offer(conn);
             }
         }
-    }
 
-    /**
-     * 获取空闲连接
-     */
-    private synchronized static AutoConnection getFreeConnection() throws SQLException {
-        AutoConnection conn = freeConnections.poll();
-        if (conn == null) {
-            conn = createConnection();
+        /**
+         * 获取空闲连接
+         */
+        private AutoConnection getFreeConnection() {
+            AutoConnection conn = freeConnections.poll();
+            if (conn == null) conn = createConnection();
+            return conn;
         }
-        return conn;
-    }
 
-    /**
-     * 初始化连接池
-     */
-    private static void initConnectionPool() throws SQLException {
-        for (int i = 0; i < initSize; i++) {
-            AutoConnection conn = createConnection();
-            freeConnections.offer(conn);
-        }
-    }
-
-    /**
-     * 创建连接
-     */
-    private static AutoConnection createConnection() throws SQLException {
-        Configuration configuration = ConfigurationManager.getConfiguration();
-        synchronized (sizeObj) {
+        /**
+         * 创建连接
+         */
+        private AutoConnection createConnection() {
             // 当前连接数不能超过最大连接数
             if (curSize >= maxSize) return null;
+            try {
+                Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
+                curSize++;
+                return conn == null ? null : new com.sqlpal.manager.MyConnection(conn);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
-        Connection conn =  DriverManager.getConnection(configuration.getUrl(), configuration.getUsername(), configuration.getPassword());
-        synchronized (sizeObj) {
-            curSize++;
-        }
-        System.out.println("curSize: " + curSize);
-        return new com.sqlpal.manager.MyConnection(conn);
-    }
 
-    /**
-     * 关闭连接
-     */
-    private static void closeConnection(Connection conn) throws SQLException {
-        if (conn == null) return;
-        synchronized (sizeObj) {
+        /**
+         * 关闭连接
+         */
+        private void closeConnection(@NotNull Connection conn) throws SQLException {
             curSize--;
+            conn.close();
         }
-        conn.close();
-    }
 
-    /**
-     * 获取最久的等待线程
-     */
-    private static Thread getWaitThread() {
-        Thread thread = waitingThreads.poll();
-        if (thread != null) {
-            System.out.println(thread.getName() + " is ready");
+        /**
+         * 释放资源
+         */
+        private void freeResources() {
+            // 释放等待线程
+            for (Thread thread : waitingThreads) {
+                LockSupport.unpark(thread);
+            }
+            waitingThreads.clear();
+
+            // 释放正在使用的线程
+            for (Connection conn : usedConnections.values()) {
+                try {
+                    closeConnection(conn);
+                } catch (SQLException ignored) {
+                }
+            }
+            usedConnections.clear();
+
+            // 释放空闲线程
+            for (Connection conn : freeConnections) {
+                try {
+                    closeConnection(conn);
+                } catch (SQLException ignored) {
+                }
+            }
+            freeConnections.clear();
         }
-        return thread;
-    }
 
-    /**
-     * 添加等待线程
-     */
-    private static void addWaitThread(@NotNull Thread thread) {
-        System.out.println(thread.getName() + " is waiting...");
-        waitingThreads.offer(thread);
+        /**
+         * 等待连接
+         */
+        public void waitForConnection(@NotNull Thread thread) {
+            waitingThreads.offer(thread);
+            LockSupport.unpark(mThread);
+            LockSupport.parkUntil(Calendar.getInstance().getTimeInMillis() + maxWait);
+        }
+
+        /**
+         * 获取连接
+         */
+        public Connection getConnection(Thread thread) {
+            return usedConnections.get(thread.getId());
+        }
+
+        /**
+         * 释放连接
+         */
+        public void freeConnection(Thread thread) {
+            // 获取当前线程的连接
+            AutoConnection conn = usedConnections.get(thread.getId());
+            if (conn == null) return;
+
+            // 重置连接
+            try {
+                conn.closeStatements();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            // 移动到空闲队列
+            usedConnections.remove(thread.getId());
+            freeConnections.offer(conn);
+
+            // 唤醒分配线程
+            LockSupport.unpark(mThread);
+        }
+
+        /**
+         * 停止
+         */
+        public void stopWork() {
+            working = false;
+            LockSupport.unpark(mThread);
+        }
     }
 }

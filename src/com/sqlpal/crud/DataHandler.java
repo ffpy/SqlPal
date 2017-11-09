@@ -1,5 +1,6 @@
 package com.sqlpal.crud;
 
+import com.sqlpal.exception.ConnectionException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.util.DBUtils;
@@ -34,6 +35,7 @@ public class DataHandler {
                 isRequestConnection = true;
                 ConnectionManager.requestConnection();
                 conn = ConnectionManager.getConnection();
+                if (conn == null) throw new ConnectionException("获取连接失败");
             }
             callback.onInitConnection(conn);
 

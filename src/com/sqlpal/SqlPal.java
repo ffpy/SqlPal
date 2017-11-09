@@ -44,7 +44,7 @@ public class SqlPal {
         ConnectionManager.requestConnection();
     }
 
-    public static void end() {
+    public static void end() throws SQLException {
         ConnectionManager.freeConnection();
     }
 

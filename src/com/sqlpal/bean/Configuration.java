@@ -7,9 +7,9 @@ public class Configuration {
     private String url;                 // 连接地址
     private String username;            // 用户名
     private String password;            // 密码
-    private int initSize;               // 连接池初始数量
-    private int maxSize;                // 连接池最大数量
-    private int maxWait;                // 最长等待时间
+    private int initSize = 1;           // 连接池初始数量
+    private int maxSize = 10;           // 连接池最大数量
+    private int maxWait = 30000;        // 最长等待时间
     private int maxBatchCount = 10000;  // 批处理最大数量
     private ArrayList<String> mapping = new ArrayList<>();  // mapping列表
 
