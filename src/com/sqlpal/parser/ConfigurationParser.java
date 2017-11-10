@@ -1,6 +1,6 @@
 package com.sqlpal.parser;
 
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.bean.Config;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -9,7 +9,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 配置文件XML处理器
  */
 public class ConfigurationParser extends DefaultHandler {
-    private Configuration configuration = new Configuration();
+    private Config config = new Config();
     private StringBuilder content = new StringBuilder();
 
     @Override
@@ -26,19 +26,19 @@ public class ConfigurationParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         String value = content.toString();
         switch (qName) {
-            case "driver": configuration.setDriverName(value); break;
-            case "url": configuration.setUrl(value); break;
-            case "username": configuration.setUsername(value); break;
-            case "password": configuration.setPassword(value); break;
-            case "initSize": configuration.setInitSize(Integer.parseInt(value)); break;
-            case "maxSize": configuration.setMaxSize(Integer.parseInt(value)); break;
-            case "maxWait": configuration.setMaxWait(Integer.parseInt(value)); break;
-            case "maxBatch": configuration.setMaxBatchCount(Integer.parseInt(value)); break;
-            case "mapping": configuration.getMapping().add(value); break;
+            case "driver": config.setDriverName(value); break;
+            case "url": config.setUrl(value); break;
+            case "username": config.setUsername(value); break;
+            case "password": config.setPassword(value); break;
+            case "initSize": config.setInitSize(Integer.parseInt(value)); break;
+            case "maxSize": config.setMaxSize(Integer.parseInt(value)); break;
+            case "maxWait": config.setMaxWait(Integer.parseInt(value)); break;
+            case "maxBatch": config.setMaxBatchCount(Integer.parseInt(value)); break;
+            case "mapping": config.getMapping().add(value); break;
         }
     }
 
-    public Configuration getConfig() {
-        return configuration;
+    public Config getConfig() {
+        return config;
     }
 }

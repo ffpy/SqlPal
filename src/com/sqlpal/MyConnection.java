@@ -1,6 +1,4 @@
-package com.sqlpal.manager;
-
-import com.sqlpal.AutoConnection;
+package com.sqlpal;
 
 import java.sql.*;
 import java.util.Map;

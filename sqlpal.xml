@@ -9,9 +9,9 @@
     <maxWait>30000</maxWait>
     <maxBatch>10000</maxBatch>
     <list>
-        <mapping>entity.User</mapping>
-        <mapping>entity.News</mapping>
-        <mapping>entity.NewsDetail</mapping>
-        <mapping>entity.NewsComment</mapping>
+        <mapping>model.User</mapping>
+        <mapping>model.News</mapping>
+        <mapping>model.NewsDetail</mapping>
+        <mapping>model.NewsComment</mapping>
     </list>
 </sqlpal>

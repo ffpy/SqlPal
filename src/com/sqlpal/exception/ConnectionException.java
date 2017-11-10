@@ -2,6 +2,9 @@ package com.sqlpal.exception;
 
 import java.sql.SQLException;
 
+/**
+ * 连接异常
+ */
 public class ConnectionException extends SQLException {
 
     public ConnectionException() {

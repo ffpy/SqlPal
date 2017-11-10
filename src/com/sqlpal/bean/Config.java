@@ -2,7 +2,10 @@ package com.sqlpal.bean;
 
 import java.util.ArrayList;
 
-public class Configuration {
+/**
+ * 配置信息
+ */
+public class Config {
     private String driverName;          // 驱动程序名
     private String url;                 // 连接地址
     private String username;            // 用户名

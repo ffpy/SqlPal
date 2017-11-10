@@ -2,7 +2,7 @@ package com.sqlpal.crud;
 
 import com.sqlpal.bean.ModelField;
 import com.sqlpal.manager.ModelManager;
-import com.sqlpal.util.EmptyUtlis;
+import com.sqlpal.util.EmptyUtils;
 import com.sqlpal.util.SqlUtils;
 import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
@@ -13,23 +13,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 更新处理类
+ */
 class UpdateHandler extends DefaultExecuteCallback<Integer> {
     private List<ModelField> primaryKeyFields = new ArrayList<>();
     private List<ModelField> updatedFields = new ArrayList<>();
 
+    /**
+     * 更新记录
+     * @return 返回更新结果，成功为1，失败为0
+     * @throws SQLException 数据库错误
+     */
     int update(@NotNull DataSupport model) throws SQLException {
         return new DataHandler().execute(this, model);
     }
 
+    /**
+     * 更新多条记录
+     * 要同时更新多条记录建议用这个方法，执行速度更快
+     * @param models 要更新的Model类列表
+     * @throws SQLException 数据库错误
+     */
     void updateAll(@NotNull List<? extends DataSupport> models) throws SQLException {
         new DataHandler().executeBatch(this, models);
     }
 
+    /**
+     * 更新符合条件的记录
+     * @param conditions 查询条件
+     * @return 返回更新的行数
+     * @throws SQLException 数据库错误
+     */
     int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
-        if (EmptyUtlis.isEmpty(conditions)) return 0;
+        if (EmptyUtils.isEmpty(conditions)) return 0;
         List<ModelField> allFields = new ArrayList<>();
         ModelManager.getAllFields(model, allFields);
-        if (EmptyUtlis.isEmpty(allFields)) return 0;
+        if (EmptyUtils.isEmpty(allFields)) return 0;
 
         return new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
 
@@ -62,7 +82,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
     @Override
     public boolean onGetValues(DataSupport model) throws SQLException {
         ModelManager.getFields(model, primaryKeyFields, updatedFields);
-        return !EmptyUtlis.isEmpty(primaryKeyFields) && !EmptyUtlis.isEmpty(updatedFields);
+        return !EmptyUtils.isEmpty(primaryKeyFields) && !EmptyUtils.isEmpty(updatedFields);
     }
 
     @Override

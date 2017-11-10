@@ -4,7 +4,7 @@ import com.sqlpal.exception.ConnectionException;
 import com.sqlpal.manager.ConfigurationManager;
 import com.sqlpal.manager.ConnectionManager;
 import com.sqlpal.util.DBUtils;
-import com.sqlpal.util.EmptyUtlis;
+import com.sqlpal.util.EmptyUtils;
 import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 
@@ -14,6 +14,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+/**
+ * CRUD处理类
+ */
 public class DataHandler {
     private Boolean isAutoCommit = null;
 
@@ -52,7 +55,7 @@ public class DataHandler {
     }
 
     void executeBatch(@NotNull ExecuteCallback callback, @NotNull List<? extends DataSupport> models) throws SQLException {
-        if (EmptyUtlis.isEmpty(models)) return;
+        if (EmptyUtils.isEmpty(models)) return;
 
         execute(new DefaultExecuteCallback<Void>() {
             @Override
@@ -65,7 +68,7 @@ public class DataHandler {
             public PreparedStatement onCreateStatement(Connection connection, DataSupport modelIgnore) throws SQLException {
                 PreparedStatement stmt = null;
                 int batchCount = 0;
-                final int maxBatchCount = ConfigurationManager.getConfiguration().getMaxBatchCount();
+                final int maxBatchCount = ConfigurationManager.getConfig().getMaxBatchCount();
                 for (DataSupport model : models) {
                     if (!callback.onGetValues(model)) continue;
 
@@ -107,7 +110,7 @@ public class DataHandler {
     }
 
     int executeUpdate(@NotNull String[] conditions) throws SQLException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+        if (EmptyUtils.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
 
         PreparedStatement stmt = null;
         try {
@@ -127,7 +130,7 @@ public class DataHandler {
     }
 
     Statement executeQuery(@NotNull String[] conditions) throws SQLException {
-        if (EmptyUtlis.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
+        if (EmptyUtils.isEmpty(conditions)) throw new RuntimeException("SQL语句不能为空");
 
         Connection conn = ConnectionManager.getConnection();
         if (conn == null) {

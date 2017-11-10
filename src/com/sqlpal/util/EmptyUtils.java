@@ -4,7 +4,10 @@ import com.sun.istack.internal.Nullable;
 
 import java.util.List;
 
-public class EmptyUtlis {
+/**
+ * 空检查工具类
+ */
+public class EmptyUtils {
 
     public static boolean isEmpty(List list) {
         return list == null || list.isEmpty();

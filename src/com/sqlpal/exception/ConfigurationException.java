@@ -1,5 +1,8 @@
 package com.sqlpal.exception;
 
+/**
+ * 配置异常
+ */
 public class ConfigurationException extends RuntimeException {
 
     public ConfigurationException() {

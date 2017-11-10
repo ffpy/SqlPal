@@ -1,6 +1,6 @@
 package com.sqlpal.manager;
 
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.bean.Config;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.annotation.TableName;
@@ -18,8 +18,8 @@ public class TableNameManager {
      */
     public static void init() {
         tableMap = new ConcurrentHashMap<>();
-        Configuration configuration = ConfigurationManager.getConfiguration();
-        for (String className : configuration.getMapping()) {
+        Config config = ConfigurationManager.getConfig();
+        for (String className : config.getMapping()) {
             Class<?> cls = DataSupportClassManager.getClass(className);
             TableName annotation = cls.getAnnotation(TableName.class);
             if (annotation == null) {
@@ -43,7 +43,8 @@ public class TableNameManager {
     /**
      * 获取Model类所映射的表名
      * @param modelClass Model类的Class
-     * @return 表名
+     * @return 返回表名
+     * @throws ConfigurationException 初始化错误
      */
     public static String getTableName(Class<? extends DataSupport> modelClass) throws ConfigurationException {
         String tableName = tableMap.get(modelClass.getName());

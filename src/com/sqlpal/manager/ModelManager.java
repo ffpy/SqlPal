@@ -2,7 +2,7 @@ package com.sqlpal.manager;
 
 import com.sqlpal.annotation.AutoIncrement;
 import com.sqlpal.annotation.PrimaryKey;
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.bean.Config;
 import com.sqlpal.bean.ModelField;
 import com.sqlpal.crud.DataSupport;
 import com.sqlpal.exception.ConfigurationException;
@@ -34,8 +34,8 @@ public class ModelManager {
         primaryKeyNamesMap = new ConcurrentHashMap<>();
         autoIncrementMap = new ConcurrentHashMap<>();
 
-        Configuration configuration = ConfigurationManager.getConfiguration();
-        for (String className : configuration.getMapping()) {
+        Config config = ConfigurationManager.getConfig();
+        for (String className : config.getMapping()) {
             Class<?> cls = DataSupportClassManager.getClass(className);
             ArrayList<String> primaryKeyNames = new ArrayList<>();
             Field[] fields = cls.getDeclaredFields();
@@ -77,6 +77,8 @@ public class ModelManager {
 
     /**
      * 获取主键列表
+     * @param modelClass 要获取的Model类的Class
+     * @return 返回主键列表
      */
     public static ArrayList<String> getPrimaryKeyNames(Class<? extends DataSupport> modelClass) {
         return primaryKeyNamesMap.get(modelClass.getName());
@@ -84,6 +86,8 @@ public class ModelManager {
 
     /**
      * 检查字段类型是不是支持的类型
+     * @param field 字段
+     * @return 支持返回true，否则返回false
      */
     private static boolean isSupportedField(Field field) {
         if (field.getModifiers() != Modifier.PRIVATE) return false;
@@ -96,6 +100,8 @@ public class ModelManager {
 
     /**
      * 判断是不是主键字段
+     * @param field 字段
+     * @return 是返回true，不是返回false
      */
     private static boolean isPrimaryKeyField(Field field) {
         return field.getAnnotation(PrimaryKey.class) != null;
@@ -103,6 +109,8 @@ public class ModelManager {
 
     /**
      * 判断是不是自增字段
+     * @param field 字段
+     * @return 是返回true，不是返回false
      */
     private static boolean isAutoIncrement(Field field) {
         return field.getAnnotation(AutoIncrement.class) != null;
@@ -110,6 +118,8 @@ public class ModelManager {
 
     /**
      * 遍历非null字段
+     * @param model Model类实例
+     * @param fieldListCallback 遍历回调
      */
     private static void listNotNullFields(@NotNull DataSupport model, @NotNull FieldListCallback fieldListCallback) {
         Field[] fields = model.getClass().getDeclaredFields();
@@ -128,6 +138,8 @@ public class ModelManager {
 
     /**
      * 获取所有字段
+     * @param model 要读取的Model类
+     * @param allFields 在这里保存读取结果
      */
     public static void getAllFields(@NotNull DataSupport model, @NotNull List<ModelField> allFields) {
         allFields.clear();
@@ -136,6 +148,8 @@ public class ModelManager {
 
     /**
      * 获取主键字段
+     * @param model 要读取的Model类
+     * @param primaryKeyFields 在这里保存读取结果
      */
     public static void getPrimaryKeyFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields) {
         primaryKeyFields.clear();
@@ -157,8 +171,8 @@ public class ModelManager {
     /**
      * 获取字段
      * @param model model对象
-     * @param primaryKeyFields 主键字段
-     * @param notPrimaryKeyFields 非主键字段
+     * @param primaryKeyFields 这里保存主键字段列表
+     * @param notPrimaryKeyFields 这里保存非主键字段列表
      */
     public static void getFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> notPrimaryKeyFields) {
         primaryKeyFields.clear();
@@ -174,6 +188,8 @@ public class ModelManager {
 
     /**
      * 根据结果集实例化一个model
+     * @param modelClass Model类的Class
+     * @param rs 结果集
      */
     public static <T extends DataSupport> T instance(@NotNull Class<? extends DataSupport> modelClass, @NotNull ResultSet rs) {
         try {
@@ -187,7 +203,7 @@ public class ModelManager {
 
     /**
      * 设置字段值
-     * @param model model对象
+     * @param model Model对象
      * @param rs 结果集
      */
     public static void setFields(@NotNull DataSupport model, @NotNull ResultSet rs) {
@@ -216,6 +232,7 @@ public class ModelManager {
 
     /**
      * 获取模型类的自增字段
+     * @param modelClass Model类的Class
      * @return 返回自增字段名，null代表没有自增字段
      */
     public static String getAutoIncrement(@NotNull Class<? extends DataSupport> modelClass) {

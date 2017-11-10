@@ -1,7 +1,8 @@
 package com.sqlpal.manager;
 
 import com.sqlpal.AutoConnection;
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.MyConnection;
+import com.sqlpal.bean.Config;
 import com.sqlpal.exception.ConfigurationException;
 import com.sun.istack.internal.NotNull;
 
@@ -23,7 +24,7 @@ public class ConnectionManager {
      * 初始化
      */
     public static void init() throws SQLException {
-        Configuration config = ConfigurationManager.getConfiguration();
+        Config config = ConfigurationManager.getConfig();
         // 加载驱动程序
         try {
             Class.forName(config.getDriverName());
@@ -48,6 +49,7 @@ public class ConnectionManager {
 
     /**
      * 获取当前线程的连接
+     * @return 返回数据库连接
      */
     public static Connection getConnection() {
         return mAllotThread.getConnection(Thread.currentThread());
@@ -72,9 +74,9 @@ public class ConnectionManager {
      * 分配线程
      */
     private static class AllotThread extends Thread {
-        private boolean working = true;
-        private Thread mThread;
-        private final Configuration config = ConfigurationManager.getConfiguration();
+        private boolean working = true;                             // 运行状态
+        private Thread mThread;                                     // 自身Thread实例
+        private final Config config = ConfigurationManager.getConfig();
         private final ConcurrentLinkedQueue<AutoConnection> freeConnections = new ConcurrentLinkedQueue<>();      // 空闲连接
         private final ConcurrentLinkedQueue<Thread> waitingThreads = new ConcurrentLinkedQueue<>();               // 等待分配连接的线程
         private final ConcurrentHashMap<Long, AutoConnection> usedConnections = new ConcurrentHashMap<>();        // 正在使用的连接
@@ -123,6 +125,7 @@ public class ConnectionManager {
 
         /**
          * 获取空闲连接
+         * @return 返回数据库连接
          */
         private AutoConnection getFreeConnection() {
             AutoConnection conn = freeConnections.poll();
@@ -132,6 +135,7 @@ public class ConnectionManager {
 
         /**
          * 创建连接
+         * @return 返回数据库连接
          */
         private AutoConnection createConnection() {
             // 当前连接数不能超过最大连接数
@@ -139,7 +143,7 @@ public class ConnectionManager {
             try {
                 Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
                 curSize++;
-                return conn == null ? null : new com.sqlpal.manager.MyConnection(conn);
+                return conn == null ? null : new MyConnection(conn);
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
@@ -194,6 +198,7 @@ public class ConnectionManager {
 
         /**
          * 获取连接
+         * @return 返回数据库连接
          */
         public Connection getConnection(Thread thread) {
             return usedConnections.get(thread.getId());

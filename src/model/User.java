@@ -1,4 +1,4 @@
-package entity;
+package model;
 
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.crud.DataSupport;

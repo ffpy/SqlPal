@@ -1,6 +1,6 @@
 package com.sqlpal.manager;
 
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.bean.Config;
 import com.sqlpal.exception.ConfigurationException;
 import com.sqlpal.parser.ConfigurationParser;
 import org.xml.sax.SAXException;
@@ -15,8 +15,8 @@ import java.io.IOException;
  * 配置管理器
  */
 public class ConfigurationManager {
-    private static final String CONFIG_FILENAME = "sqlpal.xml";    // 配置文件
-    private static Configuration configuration;
+    private static final String CONFIG_FILENAME = "sqlpal.xml";     // 配置文件名
+    private static Config config;                                   // 配置信息
 
     /**
      * 初始化配置信息
@@ -28,7 +28,7 @@ public class ConfigurationManager {
             SAXParser parser = factory.newSAXParser();
             try {
                 parser.parse(new File(CONFIG_FILENAME), handler);
-                configuration = handler.getConfig();
+                config = handler.getConfig();
             } catch (IOException e) {
                 throw new ConfigurationException("打开" + CONFIG_FILENAME + "失败，请确保把文件放在项目根目录！", e);
             } catch (SAXException e) {
@@ -43,19 +43,24 @@ public class ConfigurationManager {
      * 销毁
      */
     public static void destroy() {
-        configuration = null;
+        config = null;
     }
 
     /**
      * 获取配置信息
+     * @return 返回配置信息
      */
-    public static Configuration getConfiguration() throws ConfigurationException {
-        if (configuration == null) {
+    public static Config getConfig() throws ConfigurationException {
+        if (config == null) {
             throw new ConfigurationException("没有初始化！");
         }
-        return configuration;
+        return config;
     }
 
+    /**
+     * 获取配置文件名
+     * @return 返回配置文件名
+     */
     static String getConfigFilename() {
         return CONFIG_FILENAME;
     }

@@ -1,6 +1,6 @@
 package com.sqlpal.manager;
 
-import com.sqlpal.bean.Configuration;
+import com.sqlpal.bean.Config;
 import com.sqlpal.exception.ConfigurationException;
 
 import java.util.HashMap;
@@ -9,15 +9,15 @@ import java.util.HashMap;
  * DataSupport类管理器
  */
 public class DataSupportClassManager {
-    private static HashMap<String, Class<?>> classMap;
+    private static HashMap<String, Class<?>> classMap;      // className对应的class映射
 
     /**
      * 初始化
      */
     public static void init() {
         classMap = new HashMap<>();
-        Configuration configuration = ConfigurationManager.getConfiguration();
-        for (String className : configuration.getMapping()) {
+        Config config = ConfigurationManager.getConfig();
+        for (String className : config.getMapping()) {
             try {
                 Class<?> cls = Class.forName(className);
                 classMap.put(className, cls);

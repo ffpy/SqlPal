@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * 实现了一些默认的方法
+ */
 public abstract class DefaultExecuteCallback<T> implements ExecuteCallback<T> {
 
     @Override

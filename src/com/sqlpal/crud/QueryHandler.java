@@ -2,7 +2,7 @@ package com.sqlpal.crud;
 
 import com.sqlpal.manager.ModelManager;
 import com.sqlpal.manager.TableNameManager;
-import com.sqlpal.util.EmptyUtlis;
+import com.sqlpal.util.EmptyUtils;
 import com.sqlpal.util.SqlUtils;
 import com.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
@@ -12,14 +12,29 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 查询处理类
+ */
 class QueryHandler {
 
+    /**
+     * 查找第一条记录
+     * @param modelClass 要查找的Model类的Class
+     * @return 返回查找结果
+     * @throws SQLException 数据库错误
+     */
     <T extends DataSupport> T findFirst(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                         @Nullable String[] conditions) throws SQLException {
         List<T> models = find(modelClass, columns, conditions, null, 1, 0);
         return models.isEmpty() ? null : models.get(0);
     }
 
+    /**
+     * 查找最后一条记录
+     * @param modelClass 要查找的Model类的Class
+     * @return 返回查找结果
+     * @throws SQLException 数据库错误
+     */
     <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                        @Nullable String[] conditions) throws SQLException {
         ArrayList<String> primaryKeyNames = ModelManager.getPrimaryKeyNames(modelClass);
@@ -31,10 +46,27 @@ class QueryHandler {
         return models.isEmpty() ? null : models.get(0);
     }
 
+    /**
+     * 查询所有记录
+     * @param modelClass 要查找的Model类的Class
+     * @return 返回查找结果
+     * @throws SQLException 数据库错误
+     */
     <T extends DataSupport> List<T> findAll(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
         return find(modelClass, null, null, null, 0, 0);
     }
 
+    /**
+     * 查找记录
+     * @param modelClass 要查找的Model类的Class
+     * @param columns select的参数
+     * @param conditions where的参数
+     * @param orderBy order by的参数
+     * @param limit limit的参数
+     * @param offset offset的参数
+     * @return 返回查询结果
+     * @throws SQLException 数据库错误
+     */
     <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                                         @Nullable String[] conditions, @Nullable String[] orderBy,
                                                         int limit, int offset) throws SQLException {
@@ -67,6 +99,18 @@ class QueryHandler {
         });
     }
 
+    /**
+     * 聚合函数
+     * @param modelClass 要查找的Model类的Class
+     * @param columnType 结果类型，支持的类型有short.class, int.class, long.class, float.class, double.class
+     * @param columns select的参数
+     * @param conditions where的参数
+     * @param orderBy order by的参数
+     * @param limit limit的参数
+     * @param offset offset的参数
+     * @return 返回查询结果
+     * @throws SQLException 数据库错误
+     */
     <T extends Number> T aggregate(@NotNull Class<? extends DataSupport> modelClass, @NotNull Class<T> columnType,
                                  @Nullable String[] columns, @Nullable String[] conditions, @Nullable String[] orderBy,
                                  int limit, int offset) throws SQLException {
@@ -89,7 +133,7 @@ class QueryHandler {
                 T result = null;
                 if (rs.next()) {
                     String s = rs.getString(1);
-                    if (!EmptyUtlis.isEmpty(s)) {
+                    if (!EmptyUtils.isEmpty(s)) {
                         try {
                             switch (columnType.getName()) {
                                 case "short":

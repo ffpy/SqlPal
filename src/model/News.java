@@ -1,16 +1,16 @@
-package entity;
+package model;
 
 import com.sqlpal.annotation.AutoIncrement;
 import com.sqlpal.annotation.PrimaryKey;
 import com.sqlpal.annotation.TableName;
 import com.sqlpal.crud.DataSupport;
 
-@TableName(name = "news_comment")
-public class NewsComment extends DataSupport {
+@TableName(name = "news")
+public class News extends DataSupport {
     @PrimaryKey
     @AutoIncrement
     private Integer id;
-    private String content;
+    private String title;
 
     public Integer getId() {
         return id;
@@ -20,11 +20,16 @@ public class NewsComment extends DataSupport {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getTitle() {
+        return title;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public String toString() {
+        return id + "\t" + title;
     }
 }

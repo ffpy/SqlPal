@@ -1,8 +1,11 @@
 package com.sqlpal.bean;
 
+/**
+ * Model类字段属性
+ */
 public class ModelField {
-    private String name;
-    private Object value;
+    private String name;    // 字段名
+    private Object value;   // 字段值
 
     public ModelField() {
     }
