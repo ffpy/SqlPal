@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 自动关闭Statement
+ * 添加关闭Statement的接口
  */
-public interface AutoConnection extends Connection{
+public interface StatementClosableConnection extends Connection{
     void closeStatements() throws SQLException;
 }

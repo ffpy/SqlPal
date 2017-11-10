@@ -6,7 +6,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
-public class MyConnection implements AutoConnection {
+/**
+ * 添加了关闭statement的功能
+ */
+public class MyConnection implements StatementClosableConnection {
     private Connection conn;
     private ConcurrentLinkedQueue<Statement> statements = new ConcurrentLinkedQueue<>();
 

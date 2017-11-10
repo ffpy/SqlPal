@@ -1,6 +1,6 @@
 package com.sqlpal.manager;
 
-import com.sqlpal.AutoConnection;
+import com.sqlpal.StatementClosableConnection;
 import com.sqlpal.MyConnection;
 import com.sqlpal.bean.Config;
 import com.sqlpal.exception.ConfigurationException;
@@ -77,9 +77,9 @@ public class ConnectionManager {
         private boolean working = true;                             // 运行状态
         private Thread mThread;                                     // 自身Thread实例
         private final Config config = ConfigurationManager.getConfig();
-        private final ConcurrentLinkedQueue<AutoConnection> freeConnections = new ConcurrentLinkedQueue<>();      // 空闲连接
+        private final ConcurrentLinkedQueue<StatementClosableConnection> freeConnections = new ConcurrentLinkedQueue<>();      // 空闲连接
         private final ConcurrentLinkedQueue<Thread> waitingThreads = new ConcurrentLinkedQueue<>();               // 等待分配连接的线程
-        private final ConcurrentHashMap<Long, AutoConnection> usedConnections = new ConcurrentHashMap<>();        // 正在使用的连接
+        private final ConcurrentHashMap<Long, StatementClosableConnection> usedConnections = new ConcurrentHashMap<>();        // 正在使用的连接
         private final int initSize = config.getInitSize();          // 连接池初始化连接数
         private final int maxSize = config.getMaxSize();            // 连接池最大连接数
         private final int maxWait = config.getMaxWait();            // 等待连接分配的最长时间，毫秒
@@ -96,7 +96,7 @@ public class ConnectionManager {
                     continue;
                 }
 
-                AutoConnection conn = getFreeConnection();
+                StatementClosableConnection conn = getFreeConnection();
                 if (conn == null) {
                     LockSupport.park();
                     continue;
@@ -118,7 +118,7 @@ public class ConnectionManager {
         private void init() {
             // 初始化连接池
             for (int i = 0; i < initSize; i++) {
-                AutoConnection conn = createConnection();
+                StatementClosableConnection conn = createConnection();
                 freeConnections.offer(conn);
             }
         }
@@ -127,8 +127,8 @@ public class ConnectionManager {
          * 获取空闲连接
          * @return 返回数据库连接
          */
-        private AutoConnection getFreeConnection() {
-            AutoConnection conn = freeConnections.poll();
+        private StatementClosableConnection getFreeConnection() {
+            StatementClosableConnection conn = freeConnections.poll();
             if (conn == null) conn = createConnection();
             return conn;
         }
@@ -137,7 +137,7 @@ public class ConnectionManager {
          * 创建连接
          * @return 返回数据库连接
          */
-        private AutoConnection createConnection() {
+        private StatementClosableConnection createConnection() {
             // 当前连接数不能超过最大连接数
             if (curSize >= maxSize) return null;
             try {
@@ -209,7 +209,7 @@ public class ConnectionManager {
          */
         public void freeConnection(Thread thread) {
             // 获取当前线程的连接
-            AutoConnection conn = usedConnections.get(thread.getId());
+            StatementClosableConnection conn = usedConnections.get(thread.getId());
             if (conn == null) return;
 
             // 重置连接
