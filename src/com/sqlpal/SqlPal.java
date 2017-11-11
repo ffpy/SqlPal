@@ -12,9 +12,9 @@ public class SqlPal {
     /**
      * 初始化
      */
-    public static void init() {
+    public static void init(String configFilename) {
         try {
-            ConfigurationManager.init();
+            ConfigurationManager.init(configFilename);
             ConnectionManager.init();
             DataSupportClassManager.init();
             TableNameManager.init();

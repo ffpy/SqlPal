@@ -15,24 +15,25 @@ import java.io.IOException;
  * 配置管理器
  */
 public class ConfigurationManager {
-    private static final String CONFIG_FILENAME = "sqlpal.xml";     // 配置文件名
-    private static Config config;                                   // 配置信息
+    private static String configFilename;   // 配置文件名
+    private static Config config;           // 配置信息
 
     /**
      * 初始化配置信息
      */
-    public static void init() throws ConfigurationException {
+    public static void init(String configFilename) throws ConfigurationException {
+        ConfigurationManager.configFilename = configFilename;
         SAXParserFactory factory = SAXParserFactory.newInstance();
         ConfigurationParser handler = new ConfigurationParser();
         try {
             SAXParser parser = factory.newSAXParser();
             try {
-                parser.parse(new File(CONFIG_FILENAME), handler);
+                parser.parse(new File(configFilename), handler);
                 config = handler.getConfig();
             } catch (IOException e) {
-                throw new ConfigurationException("打开" + CONFIG_FILENAME + "失败，请确保把文件放在项目根目录！", e);
+                throw new ConfigurationException("打开" + configFilename + "失败，请确保把文件放在项目根目录！", e);
             } catch (SAXException e) {
-                throw new ConfigurationException("解析" + CONFIG_FILENAME + "出错！", e);
+                throw new ConfigurationException("解析" + configFilename + "出错！", e);
             }
         } catch (ParserConfigurationException | SAXException e) {
             throw new ConfigurationException("创建SAX解析器失败!", e);
@@ -62,6 +63,6 @@ public class ConfigurationManager {
      * @return 返回配置文件名
      */
     static String getConfigFilename() {
-        return CONFIG_FILENAME;
+        return configFilename;
     }
 }
