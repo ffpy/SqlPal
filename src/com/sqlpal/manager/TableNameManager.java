@@ -20,7 +20,7 @@ public class TableNameManager {
         tableMap = new ConcurrentHashMap<>();
         Config config = ConfigurationManager.getConfig();
         for (String className : config.getMapping()) {
-            Class<?> cls = DataSupportClassManager.getClass(className);
+            Class<?> cls = ClassManager.getClass(className);
             TableName annotation = cls.getAnnotation(TableName.class);
             if (annotation == null) {
                 throw new ConfigurationException("请为" + className + "添加TableName注解以指定表名");

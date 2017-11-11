@@ -16,11 +16,11 @@ public class SqlPal {
         try {
             ConfigurationManager.init(configFilename);
             ConnectionManager.init();
-            DataSupportClassManager.init();
+            ClassManager.init();
             TableNameManager.init();
             ModelManager.init();
 
-            DataSupportClassManager.destroy();
+            ClassManager.destroy();
         } catch (SQLException e) {
             e.printStackTrace();
         }

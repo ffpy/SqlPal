@@ -20,10 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 模型管理器
  */
 public class ModelManager {
-    private static final String[] supportedClassNames = {
-            "java.lang.Integer", "java.lang.Short", "java.lang.Long",
-            "java.lang.Float", "java.lang.Double", "java.lang.String",
-            "java.util.Date"};                                                          // 支持的数据类型
     private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyNamesMap;     // 模型类对应的主键
     private static ConcurrentHashMap<String, String> autoIncrementMap;                  // 模型类对应的自增字段
 
@@ -36,7 +32,7 @@ public class ModelManager {
 
         Config config = ConfigurationManager.getConfig();
         for (String className : config.getMapping()) {
-            Class<?> cls = DataSupportClassManager.getClass(className);
+            Class<?> cls = ClassManager.getClass(className);
             ArrayList<String> primaryKeyNames = new ArrayList<>();
             Field[] fields = cls.getDeclaredFields();
 
@@ -90,12 +86,7 @@ public class ModelManager {
      * @return 支持返回true，否则返回false
      */
     private static boolean isSupportedField(Field field) {
-        if (field.getModifiers() != Modifier.PRIVATE) return false;
-        String className = field.getGenericType().getTypeName();
-        for (String name : supportedClassNames) {
-            if (className.equals(name)) return true;
-        }
-        return false;
+        return field.getModifiers() == Modifier.PRIVATE;
     }
 
     /**
@@ -213,18 +204,7 @@ public class ModelManager {
             if (!isSupportedField(field)) continue;
             String columnName = field.getName();
             try {
-                Object value = null;
-                switch (field.getGenericType().getTypeName()) {
-                    case "java.lang.Integer": value = rs.getInt(columnName);break;
-                    case "java.lang.Short": value = rs.getShort(columnName); break;
-                    case "java.lang.Long": value = rs.getLong(columnName); break;
-                    case "java.lang.Float": value = rs.getFloat(columnName); break;
-                    case "java.lang.Double": value = rs.getDouble(columnName); break;
-                    case "java.lang.String": value = rs.getString(columnName); break;
-                    case "java.util.Date": value = rs.getDate(columnName); break;
-                }
-
-                field.set(model, value);
+                field.set(model, rs.getObject(columnName));
             } catch (SQLException | IllegalAccessException ignored) {
             }
         }
