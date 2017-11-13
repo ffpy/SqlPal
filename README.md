@@ -1,8 +1,9 @@
+## SqlPal
 SqlPal是一款封装了JDBC API的对象关系映射(ORM)框架，
 参考了[LitePal](https://github.com/LitePalFramework/LitePal)的API设计,
 目的是追求简洁的数据库操作
 
-### 使用示例
+## 使用示例
 ```
 // 初始化
 SqlPal.init("sqlpal.xml");
@@ -18,9 +19,13 @@ try {
 SqlPal.destroy();
 ```
 
-### 最新版本
+## 最新版本
 - [sqlpal-0.0.1.jar](https://raw.githubusercontent.com/ffpy/SqlPal/master/downloads/sqlpal-0.0.1.jar)
 
+## 原理说明
+通过运行时注解和反射来封装JDBC API
+
+## 使用方法
 ### 添加依赖包
 - sqlpal.jar
 - mysql-connector-java.jar(数据库驱动程序，这里以Mysql数据库为例)
@@ -147,7 +152,7 @@ try {
 }
 ```
 news对象在执行save操作后会自动填入id值
-#### 批量存储
+### 批量存储
 使用了批处理，效率更高
 ```
 // 建立模型对象1
@@ -187,7 +192,7 @@ try {
     e.printStackTrace();
 }
 ```
-#### 批量修改
+### 批量修改
 类似于批量存储
 #### 约束修改
 ```
