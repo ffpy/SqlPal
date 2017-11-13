@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<sqlpal>
+    <!-- 驱动程序名 -->
+    <driver>com.mysql.jdbc.Driver</driver>
+    <!-- 连接数据库的URL -->
+    <url>jdbc:mysql://localhost:3306/test?&amp;useUnicode=true&amp;characterEncoding=utf-8</url>
+    <!-- 数据库用户名 -->
+    <username>root</username>
+    <!-- 数据库密码 -->
+    <password>root</password>
+    <!-- 连接池初始数量 -->
+    <initSize>1</initSize>
+    <!-- 连接池最大数量 -->
+    <maxSize>10</maxSize>
+    <!-- 最大等待连接时间 -->
+    <maxWait>30000</maxWait>
+    <!-- 最大批处理数量 -->
+    <maxBatch>10000</maxBatch>
+    <!-- 映射列表 -->
+    <list>
+        <!-- 用户表 -->
+        <mapping>org.sqlpal.sample.model.User</mapping>
+        <!-- 新闻表 -->
+        <mapping>org.sqlpal.sample.model.News</mapping>
+    </list>
+</sqlpal>
