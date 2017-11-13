@@ -26,7 +26,8 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
      * @throws SQLException 数据库错误
      */
     int update(@NotNull DataSupport model) throws SQLException {
-        return new DataHandler().execute(this, model);
+        Integer row = new DataHandler().execute(this, model);
+        return row == null ? 0 : row;
     }
 
     /**
@@ -51,7 +52,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
         ModelManager.getAllFields(model, allFields);
         if (EmptyUtils.isEmpty(allFields)) return 0;
 
-        return new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
+        Integer row = new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
 
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
@@ -72,6 +73,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
                 return statement.executeUpdate();
             }
         }, model);
+        return row == null ? 0 : row;
     }
 
     @Override
@@ -82,7 +84,8 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
     @Override
     public boolean onGetValues(DataSupport model) throws SQLException {
         ModelManager.getFields(model, primaryKeyFields, updatedFields);
-        return !EmptyUtils.isEmpty(primaryKeyFields) && !EmptyUtils.isEmpty(updatedFields);
+        if (EmptyUtils.isEmpty(primaryKeyFields)) throw new RuntimeException("主键没有值，请设置主键值");
+        return !EmptyUtils.isEmpty(updatedFields);
     }
 
     @Override

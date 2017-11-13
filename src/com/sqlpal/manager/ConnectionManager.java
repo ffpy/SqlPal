@@ -216,8 +216,7 @@ public class ConnectionManager {
             try {
                 conn.closeStatements();
                 conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException ignored) {
             }
 
             // 移动到空闲队列

@@ -150,12 +150,10 @@ public class ModelManager {
                 Field field = cls.getDeclaredField(name);
                 field.setAccessible(true);
                 Object obj = field.get(model);
+                if (obj == null) continue;
                 primaryKeyFields.add(new ModelField(field.getName(), obj));
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
-        }
-        if (primaryKeyFields.isEmpty()) {
-            throw new RuntimeException("找不到主键，请为" + model.getClass() + "添加PrimaryKey注解以指定主键");
         }
     }
 

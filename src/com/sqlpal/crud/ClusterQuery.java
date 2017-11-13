@@ -104,7 +104,7 @@ public class ClusterQuery {
      * @throws SQLException 数据库错误
      */
     public int count(@NotNull Class<? extends DataSupport> modelClass) throws SQLException {
-        return new QueryHandler().aggregate(modelClass, int.class, new String[]{"COUNT(*)"}, conditions, null, 0, 0);
+        return new QueryHandler().aggregate(modelClass, int.class, new String[]{"COUNT(*)"}, conditions);
     }
 
     /**
@@ -117,7 +117,7 @@ public class ClusterQuery {
      */
     public <T extends Number> T sum(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "SUM(" + column + ")";
-        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
+        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions);
     }
 
     /**
@@ -129,7 +129,7 @@ public class ClusterQuery {
      */
     public double average(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column) throws SQLException {
         column = "AVG(" + column + ")";
-        return new QueryHandler().aggregate(modelClass, double.class, new String[]{column}, conditions, null, 0, 0);
+        return new QueryHandler().aggregate(modelClass, double.class, new String[]{column}, conditions);
     }
 
     /**
@@ -142,7 +142,7 @@ public class ClusterQuery {
      */
     public <T extends Number> T max(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "MAX(" + column + ")";
-        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
+        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions);
     }
 
     /**
@@ -155,6 +155,6 @@ public class ClusterQuery {
      */
     public <T extends Number> T min(@NotNull Class<? extends DataSupport> modelClass, @NotNull String column, Class<T> columnType) throws SQLException {
         column = "MIN(" + column + ")";
-        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions, null, 0, 0);
+        return new QueryHandler().aggregate(modelClass, columnType, new String[]{column}, conditions);
     }
 }

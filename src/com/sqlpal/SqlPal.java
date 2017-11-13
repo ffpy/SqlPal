@@ -42,9 +42,8 @@ public class SqlPal {
 
     /**
      * 开始事务
-     * @throws ConnectionException 连接错误
      */
-    public static void begin() throws ConnectionException {
+    public static void begin(){
         ConnectionManager.requestConnection();
     }
 

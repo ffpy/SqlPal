@@ -30,7 +30,9 @@ class SaveHandler extends DefaultExecuteCallback<Integer> {
         models.add(model);
         mModels = models;
 
-        return new DataHandler().execute(this, model);
+        Integer row = new DataHandler().execute(this, model);
+        mModels = null;
+        return row == null ? 0 : row;
     }
 
     /**
@@ -43,6 +45,7 @@ class SaveHandler extends DefaultExecuteCallback<Integer> {
         insertIndex = 0;
         mModels = models;
         new DataHandler().executeBatch(this, models);
+        mModels = null;
     }
 
     @Override

@@ -26,7 +26,8 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
      * @throws SQLException 数据从错误
      */
     int delete(DataSupport model) throws SQLException {
-        return new DataHandler().execute(this, model);
+        Integer row = new DataHandler().execute(this, model);
+        return row == null ? 0 : row;
     }
 
     /**
@@ -47,7 +48,7 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
      * @throws SQLException
      */
     int deleteAll(@NotNull Class<? extends DataSupport> modelClass, @NotNull String... conditions) throws SQLException {
-        return new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
+        Integer row = new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
                 return connection.prepareStatement(SqlUtils.delete(
@@ -67,6 +68,7 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
                 return statement.executeUpdate();
             }
         });
+        return row == null ? 0 : row;
     }
 
     @Override
@@ -77,7 +79,8 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
     @Override
     public boolean onGetValues(DataSupport model) throws SQLException {
         ModelManager.getPrimaryKeyFields(model, primaryKeyFields);
-        return !EmptyUtils.isEmpty(primaryKeyFields);
+        if (EmptyUtils.isEmpty(primaryKeyFields)) throw new RuntimeException("主键没有值，请设置主键值");
+        return true;
     }
 
     @Override

@@ -187,7 +187,7 @@ public abstract class DataSupport {
      * 统计某列之和
      * @param modelClass 要统计的Model类的Class
      * @param column 统计的列名
-     * @param columnType 统计结果类型，可用有short.class, int.class, long.class, float.class, double.class
+     * @param columnType 统计结果类型，可用有
      * @return 返回统计结果
      * @throws SQLException 数据库错误
      */

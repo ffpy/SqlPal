@@ -10,6 +10,7 @@ import com.sun.istack.internal.Nullable;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,7 +71,7 @@ class QueryHandler {
     <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                                         @Nullable String[] conditions, @Nullable String[] orderBy,
                                                         int limit, int offset) throws SQLException {
-        return new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
+        List<T> list = new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
                 return connection.prepareStatement(SqlUtils.find(
@@ -97,6 +98,7 @@ class QueryHandler {
                 return models;
             }
         });
+        return list == null ? Collections.emptyList() : list;
     }
 
     /**
@@ -105,26 +107,24 @@ class QueryHandler {
      * @param columnType 结果类型，支持的类型有short.class, int.class, long.class, float.class, double.class
      * @param columns select的参数
      * @param conditions where的参数
-     * @param orderBy order by的参数
-     * @param limit limit的参数
-     * @param offset offset的参数
      * @return 返回查询结果
      * @throws SQLException 数据库错误
      */
     <T extends Number> T aggregate(@NotNull Class<? extends DataSupport> modelClass, @NotNull Class<T> columnType,
-                                 @Nullable String[] columns, @Nullable String[] conditions, @Nullable String[] orderBy,
-                                 int limit, int offset) throws SQLException {
+                                 @Nullable String[] columns, @Nullable String[] conditions) throws SQLException {
         return new DataHandler().execute(new DefaultExecuteCallback<T>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
                 return connection.prepareStatement(SqlUtils.find(
-                        TableNameManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
+                        TableNameManager.getTableName(modelClass), columns, conditions, null, 0, 0));
             }
 
             @Override
             public void onAddValues(PreparedStatement statement) throws SQLException {
                 StatementUtils utils = new StatementUtils(statement);
-                utils.addValues(conditions, 1);
+                if (conditions != null && conditions.length > 1) {
+                    utils.addValues(conditions, 1);
+                }
             }
 
             @Override
