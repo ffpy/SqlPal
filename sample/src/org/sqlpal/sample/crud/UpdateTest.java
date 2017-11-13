@@ -44,7 +44,7 @@ public class UpdateTest {
     }
 
     /**
-     * 查询更新
+     * 约束更新
      */
     public static void updateByCondictions() {
         // 将age大于10的所有行的密码修改为aaa

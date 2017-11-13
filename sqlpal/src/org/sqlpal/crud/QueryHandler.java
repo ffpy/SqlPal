@@ -68,9 +68,9 @@ class QueryHandler {
      * @return 返回查询结果
      * @throws SQLException 数据库错误
      */
-    <T extends DataSupport> List<T> find(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
-                                                        @Nullable String[] conditions, @Nullable String[] orderBy,
-                                                        int limit, int offset) throws SQLException {
+    <T extends DataSupport> List<T> find(@NotNull final Class<? extends DataSupport> modelClass, @Nullable final String[] columns,
+                                         @Nullable final String[] conditions, @Nullable final String[] orderBy,
+                                         final int limit, final int offset) throws SQLException {
         List<T> list = new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
@@ -98,7 +98,7 @@ class QueryHandler {
                 return models;
             }
         });
-        return list == null ? Collections.emptyList() : list;
+        return list == null ? Collections.<T>emptyList() : list;
     }
 
     /**
@@ -110,8 +110,8 @@ class QueryHandler {
      * @return 返回查询结果
      * @throws SQLException 数据库错误
      */
-    <T extends Number> T aggregate(@NotNull Class<? extends DataSupport> modelClass, @NotNull Class<T> columnType,
-                                 @Nullable String[] columns, @Nullable String[] conditions) throws SQLException {
+    <T extends Number> T aggregate(@NotNull final Class<? extends DataSupport> modelClass, @NotNull final Class<T> columnType,
+                                   @Nullable final String[] columns, @Nullable final String[] conditions) throws SQLException {
         return new DataHandler().execute(new DefaultExecuteCallback<T>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {

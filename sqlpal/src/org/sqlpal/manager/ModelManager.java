@@ -132,9 +132,14 @@ public class ModelManager {
      * @param model 要读取的Model类
      * @param allFields 在这里保存读取结果
      */
-    public static void getAllFields(@NotNull DataSupport model, @NotNull List<ModelField> allFields) {
+    public static void getAllFields(@NotNull DataSupport model, @NotNull final List<ModelField> allFields) {
         allFields.clear();
-        listNotNullFields(model, (field, name, obj) -> allFields.add(new ModelField(name, obj)));
+        listNotNullFields(model, new FieldListCallback() {
+            @Override
+            public void onList(Field field, String name, Object obj) {
+                allFields.add(new ModelField(name, obj));
+            }
+        });
     }
 
     /**
@@ -163,14 +168,17 @@ public class ModelManager {
      * @param primaryKeyFields 这里保存主键字段列表
      * @param notPrimaryKeyFields 这里保存非主键字段列表
      */
-    public static void getFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> notPrimaryKeyFields) {
+    public static void getFields(@NotNull DataSupport model, @NotNull final List<ModelField> primaryKeyFields, @NotNull final List<ModelField> notPrimaryKeyFields) {
         primaryKeyFields.clear();
         notPrimaryKeyFields.clear();
-        listNotNullFields(model, (field, name, obj) -> {
-            if (isPrimaryKeyField(field)) {
-                primaryKeyFields.add(new ModelField(name, obj));
-            } else {
-                notPrimaryKeyFields.add(new ModelField(name, obj));
+        listNotNullFields(model, new FieldListCallback() {
+            @Override
+            public void onList(Field field, String name, Object obj) {
+                if (isPrimaryKeyField(field)) {
+                    primaryKeyFields.add(new ModelField(name, obj));
+                } else {
+                    notPrimaryKeyFields.add(new ModelField(name, obj));
+                }
             }
         });
     }

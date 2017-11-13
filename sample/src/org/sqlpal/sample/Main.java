@@ -1,9 +1,7 @@
 package org.sqlpal.sample;
 
 import org.sqlpal.SqlPal;
-import org.sqlpal.sample.crud.QueryTest;
-import org.sqlpal.sample.crud.SaveTest;
-import org.sqlpal.sample.crud.UpdateTest;
+import org.sqlpal.sample.crud.*;
 
 public class Main {
 

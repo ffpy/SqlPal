@@ -47,7 +47,7 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
      * @return 返回删除的行数
      * @throws SQLException
      */
-    int deleteAll(@NotNull Class<? extends DataSupport> modelClass, @NotNull String... conditions) throws SQLException {
+    int deleteAll(@NotNull final Class<? extends DataSupport> modelClass, @NotNull final String... conditions) throws SQLException {
         Integer row = new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {

@@ -46,9 +46,9 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
      * @return 返回更新的行数
      * @throws SQLException 数据库错误
      */
-    int updateAll(@NotNull DataSupport model, @NotNull String... conditions) throws SQLException {
+    int updateAll(@NotNull DataSupport model, @NotNull final String... conditions) throws SQLException {
         if (EmptyUtils.isEmpty(conditions)) return 0;
-        List<ModelField> allFields = new ArrayList<>();
+        final List<ModelField> allFields = new ArrayList<>();
         ModelManager.getAllFields(model, allFields);
         if (EmptyUtils.isEmpty(allFields)) return 0;
 

@@ -1,4 +1,22 @@
-SqlPal是一款封装了JDBC的对象关系映射(ORM)框架，参考了LitePal的API设计,追求简洁的数据库操作，在这里先感谢一下郭神
+SqlPal是一款封装了JDBC API的对象关系映射(ORM)框架，
+参考了[LitePal](https://github.com/LitePalFramework/LitePal)的API设计,
+目的是追求简洁的数据库操作
+
+### 使用示例
+```
+// 初始化
+SqlPal.init("sample/sqlpal.xml");
+// 创建一条记录
+User user = new User("admin", "123");
+try {
+    // 保存到数据库
+    user.save();
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+// 销毁
+SqlPal.destroy();
+```
 
 ### 添加依赖包
 - sqlpal.jar
@@ -82,6 +100,21 @@ public class News extends DataSupport {
 - @PrimaryKey注解用于指定主键
 - @AutoIncrement注解表示主键是自增的
 
+### 初始化
+```
+SqlPal.init("sqlpal.xml");
+```
+- 放在程序的初始化的位置，只能执行一次
+- init方法接收一个String参数，表示配置文件的路径
+- 初始化资源
+
+### 销毁
+```
+SqlPal.destroy();
+```
+- 放在程序结束的位置
+- 释放占用的资源
+
 ### 存储数据
 #### 单个存储
 ```
@@ -153,6 +186,17 @@ try {
 ```
 #### 批量修改
 类似于批量存储
+#### 约束修改
+```
+// 将age大于10的所有行的密码修改为aaa
+User user = new User();
+user.setPassword("aaa");
+try {
+    user.updateAll("age > ?", "10");
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+```
 
 ### 删除数据
 #### 单个删除
@@ -162,13 +206,22 @@ User user = new User();
 user.setUsername("admin");
 try {
     // 删除
-    user.delete();````````
+    user.delete();
 } catch (SQLException e) {
     e.printStackTrace();
 }
 ```
 #### 批量删除
 类似于批量存储
+#### 约束删除
+```
+// 删除age大于10的行
+try {
+    DataSupport.deleteAll(User.class, "age > ?", "10");
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+```
 
 ### 查询数据
 #### 查询user表的所有数据
@@ -271,7 +324,7 @@ int max = DataSupport.max(User.class, "age", int.class);
 int min = DataSupport.min(User.class, "age", int.class);
 ``` 
 
-### 事务回滚
+### 事务操作
 ```
 try {
     SqlPal.begin();
@@ -285,6 +338,7 @@ try {
         // 提交事务
         SqlPal.commit();
     } catch (SQLException e) {
+        // 回滚事务
         SqlPal.rollback();
         e.printStackTrace();
     } finally {
@@ -294,3 +348,6 @@ try {
     e.printStackTrace();
 }
 ```
+把CRUD操作放在SqlPal.begin()和SqlPal.end()之间，因为begin方法会请求连接，而end方法会释放连接。
+这样的话就让其中的CRUD操作使用同一个Connection，省去的请求连接的时间，
+所以如果要同时执行多个CRUD操作的话建议把它们放在SqlPal.begin()和SqlPal.end()之间

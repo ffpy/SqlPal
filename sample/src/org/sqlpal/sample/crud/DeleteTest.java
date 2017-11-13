@@ -41,7 +41,7 @@ public class DeleteTest {
     }
 
     /**
-     * 查询删除
+     * 约束删除
      */
     public static void deleteByConditions() {
         // 删除age大于10的行

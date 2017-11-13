@@ -54,7 +54,7 @@ public class DataHandler {
         }
     }
 
-    void executeBatch(@NotNull ExecuteCallback callback, @NotNull List<? extends DataSupport> models) throws SQLException {
+    void executeBatch(@NotNull final ExecuteCallback callback, @NotNull final List<? extends DataSupport> models) throws SQLException {
         if (EmptyUtils.isEmpty(models)) return;
 
         execute(new DefaultExecuteCallback<Void>() {
