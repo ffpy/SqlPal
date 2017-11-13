@@ -5,7 +5,7 @@ SqlPal是一款封装了JDBC API的对象关系映射(ORM)框架，
 ### 使用示例
 ```
 // 初始化
-SqlPal.init("sample/sqlpal.xml");
+SqlPal.init("sqlpal.xml");
 // 创建一条记录
 User user = new User("admin", "123");
 try {
@@ -17,6 +17,9 @@ try {
 // 销毁
 SqlPal.destroy();
 ```
+
+### 最新版本
+- [sqlpal-0.0.1.jar](https://raw.githubusercontent.com/ffpy/SqlPal/master/downloads/sqlpal-0.0.1.jar)
 
 ### 添加依赖包
 - sqlpal.jar
