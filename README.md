@@ -2,7 +2,7 @@ SqlPal是一款封装了JDBC的对象关系映射(ORM)框架，参考了LitePal�
 
 ### 添加依赖包
 - sqlpal.jar
-- mysql-connector-java-3.1.14-bin.jar(数据库驱动程序，这里以Mysql数据库为例)
+- mysql-connector-java.jar(数据库驱动程序，这里以Mysql数据库为例)
 
 ### 配置sqlpal.xml
 在项目的根目录下新建一个sqlpal.xml文件，将以下内容复制进去
@@ -162,7 +162,7 @@ User user = new User();
 user.setUsername("admin");
 try {
     // 删除
-    user.delete();
+    user.delete();````````
 } catch (SQLException e) {
     e.printStackTrace();
 }

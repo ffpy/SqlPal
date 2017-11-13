@@ -7,7 +7,7 @@
     <!-- 数据库用户名 -->
     <username>root</username>
     <!-- 数据库密码 -->
-    <password>root</password>
+    <password>123456</password>
     <!-- 连接池初始数量 -->
     <initSize>1</initSize>
     <!-- 连接池最大数量 -->

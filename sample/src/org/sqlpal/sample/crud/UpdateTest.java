@@ -1,5 +1,6 @@
 package org.sqlpal.sample.crud;
 
+import org.sqlpal.SqlPal;
 import org.sqlpal.crud.DataSupport;
 import org.sqlpal.sample.model.User;
 
@@ -51,6 +52,26 @@ public class UpdateTest {
         user.setPassword("aaa");
         try {
             user.updateAll("age > ?", "10");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 原生更新
+     */
+    public static void executeUpdate() {
+        try {
+            SqlPal.begin();
+            try {
+                int row = DataSupport.executeUpdate("delete from user where age < ?", "16");
+                System.out.println(row);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                SqlPal.end();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
