@@ -359,3 +359,6 @@ try {
 把CRUD操作放在SqlPal.begin()和SqlPal.end()之间，因为begin方法会请求连接，而end方法会释放连接。
 这样的话就让其中的CRUD操作使用同一个Connection，省去的请求连接的时间，
 所以如果要同时执行多个CRUD操作的话建议把它们放在SqlPal.begin()和SqlPal.end()之间
+
+## License
+SqlPal is licensed under the Apache License, Version 2.0 
