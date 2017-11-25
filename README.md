@@ -81,7 +81,7 @@ CREATE TABLE `news` (
 
 ### 建立模型类
 ```
-@TableName(name = "user")
+@Table(name = "user")
 public class User extends DataSupport {
     @PrimaryKey
     private String username;
@@ -92,7 +92,7 @@ public class User extends DataSupport {
 }
 ```
 ```
-@TableName(name = "news")
+@Table(name = "news")
 public class News extends DataSupport {
     @PrimaryKey
     @AutoIncrement

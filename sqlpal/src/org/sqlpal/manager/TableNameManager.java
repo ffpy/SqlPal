@@ -3,7 +3,7 @@ package org.sqlpal.manager;
 import org.sqlpal.exception.ConfigurationException;
 import org.sqlpal.bean.Config;
 import org.sqlpal.crud.DataSupport;
-import org.sqlpal.annotation.TableName;
+import org.sqlpal.annotation.Table;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,7 +21,7 @@ public class TableNameManager {
         Config config = ConfigurationManager.getConfig();
         for (String className : config.getMapping()) {
             Class<?> cls = ClassManager.getClass(className);
-            TableName annotation = cls.getAnnotation(TableName.class);
+            Table annotation = cls.getAnnotation(Table.class);
             if (annotation == null) {
                 throw new ConfigurationException("请为" + className + "添加TableName注解以指定表名");
             }

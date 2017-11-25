@@ -1,10 +1,10 @@
 package org.sqlpal.sample.model;
 
 import org.sqlpal.annotation.PrimaryKey;
-import org.sqlpal.annotation.TableName;
+import org.sqlpal.annotation.Table;
 import org.sqlpal.crud.DataSupport;
 
-@TableName(name = "user")
+@Table(name = "user")
 public class User extends DataSupport {
     @PrimaryKey
     private String username;

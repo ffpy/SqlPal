@@ -2,10 +2,10 @@ package org.sqlpal.sample.model;
 
 import org.sqlpal.annotation.AutoIncrement;
 import org.sqlpal.annotation.PrimaryKey;
-import org.sqlpal.annotation.TableName;
+import org.sqlpal.annotation.Table;
 import org.sqlpal.crud.DataSupport;
 
-@TableName(name = "news")
+@Table(name = "news")
 public class News extends DataSupport {
     @PrimaryKey
     @AutoIncrement
