@@ -8,12 +8,6 @@
     <username>root</username>
     <!-- 数据库密码 -->
     <password>123456</password>
-    <!-- 连接池初始数量 -->
-    <initSize>1</initSize>
-    <!-- 连接池最大数量 -->
-    <maxSize>10</maxSize>
-    <!-- 最大等待连接时间 -->
-    <maxWait>30000</maxWait>
     <!-- 最大批处理数量 -->
     <maxBatch>10000</maxBatch>
     <!-- 映射列表 -->

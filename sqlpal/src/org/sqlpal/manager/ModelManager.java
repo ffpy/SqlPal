@@ -2,8 +2,8 @@ package org.sqlpal.manager;
 
 import org.sqlpal.annotation.AutoIncrement;
 import org.sqlpal.annotation.PrimaryKey;
-import org.sqlpal.bean.Config;
-import org.sqlpal.bean.ModelField;
+import org.sqlpal.config.Config;
+import org.sqlpal.common.ModelField;
 import org.sqlpal.exception.ConfigurationException;
 import org.sqlpal.crud.DataSupport;
 import com.sun.istack.internal.NotNull;
@@ -30,7 +30,7 @@ public class ModelManager {
         primaryKeyNamesMap = new ConcurrentHashMap<>();
         autoIncrementMap = new ConcurrentHashMap<>();
 
-        Config config = ConfigurationManager.getConfig();
+        Config config = ConfigManager.getConfig();
         for (String className : config.getMapping()) {
             Class<?> cls = ClassManager.getClass(className);
             ArrayList<String> primaryKeyNames = new ArrayList<>();

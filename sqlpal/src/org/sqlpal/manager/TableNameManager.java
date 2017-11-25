@@ -1,7 +1,7 @@
 package org.sqlpal.manager;
 
 import org.sqlpal.exception.ConfigurationException;
-import org.sqlpal.bean.Config;
+import org.sqlpal.config.Config;
 import org.sqlpal.crud.DataSupport;
 import org.sqlpal.annotation.Table;
 
@@ -18,7 +18,7 @@ public class TableNameManager {
      */
     public static void init() {
         tableMap = new ConcurrentHashMap<>();
-        Config config = ConfigurationManager.getConfig();
+        Config config = ConfigManager.getConfig();
         for (String className : config.getMapping()) {
             Class<?> cls = ClassManager.getClass(className);
             Table annotation = cls.getAnnotation(Table.class);
@@ -50,7 +50,7 @@ public class TableNameManager {
         String tableName = tableMap.get(modelClass.getName());
         if (tableName == null) {
             throw new ConfigurationException("找不到表名，请把" + modelClass.getName() + "添加到" +
-                    ConfigurationManager.getConfigFilename() + "的mapping中");
+                    ConfigManager.getConfigFilename() + "的mapping中");
         }
         return tableName;
     }

@@ -1,6 +1,6 @@
 package org.sqlpal.util;
 
-import org.sqlpal.bean.ModelField;
+import org.sqlpal.common.ModelField;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

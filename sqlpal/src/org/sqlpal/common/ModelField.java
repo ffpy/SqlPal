@@ -1,4 +1,4 @@
-package org.sqlpal.bean;
+package org.sqlpal.common;
 
 /**
  * Model类字段属性

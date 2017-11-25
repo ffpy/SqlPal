@@ -1,7 +1,7 @@
 package org.sqlpal.crud;
 
 import org.sqlpal.exception.ConnectionException;
-import org.sqlpal.manager.ConfigurationManager;
+import org.sqlpal.manager.ConfigManager;
 import org.sqlpal.manager.ConnectionManager;
 import org.sqlpal.util.DBUtils;
 import org.sqlpal.util.EmptyUtils;
@@ -68,7 +68,7 @@ public class DataHandler {
             public PreparedStatement onCreateStatement(Connection connection, DataSupport modelIgnore) throws SQLException {
                 PreparedStatement stmt = null;
                 int batchCount = 0;
-                final int maxBatchCount = ConfigurationManager.getConfig().getMaxBatchCount();
+                final int maxBatchCount = ConfigManager.getConfig().getMaxBatchCount();
                 for (DataSupport model : models) {
                     if (!callback.onGetValues(model)) continue;
 

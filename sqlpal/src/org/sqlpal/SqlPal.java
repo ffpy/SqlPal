@@ -1,5 +1,6 @@
 package org.sqlpal;
 
+import org.sqlpal.connection.ConnectionFactory;
 import org.sqlpal.manager.*;
 
 import java.sql.Connection;
@@ -11,18 +12,14 @@ public class SqlPal {
     /**
      * 初始化
      */
-    public static void init(String configFilename) {
-        try {
-            ConfigurationManager.init(configFilename);
-            ConnectionManager.init();
-            ClassManager.init();
-            TableNameManager.init();
-            ModelManager.init();
+    public static void init(String configFilename, ConnectionFactory connectionFactory) {
+        ConfigManager.init(configFilename);
+        ConnectionManager.init(connectionFactory);
+        ClassManager.init();
+        TableNameManager.init();
+        ModelManager.init();
 
-            ClassManager.destroy();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        ClassManager.destroy();
     }
 
     /**
@@ -30,7 +27,7 @@ public class SqlPal {
      */
     public static void destroy() {
         try {
-            ConfigurationManager.destroy();
+            ConfigManager.destroy();
             ConnectionManager.destroy();
             TableNameManager.destroy();
             ModelManager.destroy();
@@ -42,7 +39,7 @@ public class SqlPal {
     /**
      * 开始事务
      */
-    public static void begin(){
+    public static void begin() throws SQLException {
         ConnectionManager.requestConnection();
     }
 

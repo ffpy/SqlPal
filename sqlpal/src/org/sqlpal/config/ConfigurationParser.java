@@ -1,6 +1,5 @@
-package org.sqlpal.parser;
+package org.sqlpal.config;
 
-import org.sqlpal.bean.Config;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -30,10 +29,6 @@ public class ConfigurationParser extends DefaultHandler {
             case "url": config.setUrl(value); break;
             case "username": config.setUsername(value); break;
             case "password": config.setPassword(value); break;
-            case "initSize": config.setInitSize(Integer.parseInt(value)); break;
-            case "maxSize": config.setMaxSize(Integer.parseInt(value)); break;
-            case "maxWait": config.setMaxWait(Integer.parseInt(value)); break;
-            case "maxBatch": config.setMaxBatchCount(Integer.parseInt(value)); break;
             case "mapping": config.getMapping().add(value); break;
         }
     }

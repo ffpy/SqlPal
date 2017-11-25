@@ -6,7 +6,7 @@ SqlPal是一款封装了JDBC API的对象关系映射(ORM)框架，
 ## 使用示例
 ```
 // 初始化
-SqlPal.init("sqlpal.xml");
+SqlPal.init("sqlpal.xml", new SimpleConnectionFactory());
 // 创建一条记录
 User user = new User("admin", "123");
 try {
@@ -43,12 +43,6 @@ SqlPal.destroy();
     <username>root</username>
     <!-- 数据库密码 -->
     <password>123456</password>
-    <!-- 连接池初始数量 -->
-    <initSize>1</initSize>
-    <!-- 连接池最大数量 -->
-    <maxSize>10</maxSize>
-    <!-- 最大等待连接时间 -->
-    <maxWait>30000</maxWait>
     <!-- 最大批处理数量 -->
     <maxBatch>10000</maxBatch>
     <!-- 映射列表 -->
@@ -110,11 +104,12 @@ public class News extends DataSupport {
 
 ### 初始化
 ```
-SqlPal.init("sqlpal.xml");
+SqlPal.init("sqlpal.xml", new SimpleConnectionFactory());
 ```
 - 放在程序的初始化的位置，只能执行一次
-- init方法接收一个String参数，表示配置文件的路径
-- 初始化资源
+- sqlpal.xml是配置文件的路径
+- SimpleConnectionFactory是内置的连接工厂，可以实现ConnectionFactory接口来
+定制自己的连接工厂，比如使用连接池
 
 ### 销毁
 ```

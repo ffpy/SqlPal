@@ -1,7 +1,7 @@
 package org.sqlpal.manager;
 
 import org.sqlpal.exception.ConfigurationException;
-import org.sqlpal.bean.Config;
+import org.sqlpal.config.Config;
 
 import java.util.HashMap;
 
@@ -17,7 +17,7 @@ public class ClassManager {
     public static void init() {
         // 初始化modelClassMap
         modelClassMap = new HashMap<>();
-        Config config = ConfigurationManager.getConfig();
+        Config config = ConfigManager.getConfig();
         for (String className : config.getMapping()) {
             try {
                 Class<?> cls = Class.forName(className);

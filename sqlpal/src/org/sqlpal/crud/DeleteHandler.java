@@ -1,6 +1,6 @@
 package org.sqlpal.crud;
 
-import org.sqlpal.bean.ModelField;
+import org.sqlpal.common.ModelField;
 import org.sqlpal.manager.TableNameManager;
 import org.sqlpal.util.EmptyUtils;
 import org.sqlpal.manager.ModelManager;

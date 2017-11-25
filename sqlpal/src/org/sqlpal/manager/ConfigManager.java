@@ -1,8 +1,8 @@
 package org.sqlpal.manager;
 
 import org.sqlpal.exception.ConfigurationException;
-import org.sqlpal.bean.Config;
-import org.sqlpal.parser.ConfigurationParser;
+import org.sqlpal.config.Config;
+import org.sqlpal.config.ConfigurationParser;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * 配置管理器
  */
-public class ConfigurationManager {
+public class ConfigManager {
     private static String configFilename;   // 配置文件名
     private static Config config;           // 配置信息
 
@@ -22,7 +22,7 @@ public class ConfigurationManager {
      * 初始化配置信息
      */
     public static void init(String configFilename) throws ConfigurationException {
-        ConfigurationManager.configFilename = configFilename;
+        ConfigManager.configFilename = configFilename;
         SAXParserFactory factory = SAXParserFactory.newInstance();
         ConfigurationParser handler = new ConfigurationParser();
         try {
