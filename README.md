@@ -20,7 +20,7 @@ SqlPal.destroy();
 ```
 
 ## 最新版本
-- [sqlpal-0.0.1.jar](https://raw.githubusercontent.com/ffpy/SqlPal/master/downloads/sqlpal-0.0.1.jar)
+- [sqlpal-0.0.2.jar](https://raw.githubusercontent.com/ffpy/SqlPal/master/downloads/sqlpal-0.0.2.jar)
 
 ## 原理说明
 通过运行时注解和反射来封装JDBC API
