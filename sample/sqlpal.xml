@@ -3,7 +3,7 @@
     <!-- 驱动程序名 -->
     <driver>com.mysql.jdbc.Driver</driver>
     <!-- 连接数据库的URL -->
-    <url>jdbc:mysql://localhost:3306/test?&amp;useUnicode=true&amp;characterEncoding=utf-8</url>
+    <url>jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false</url>
     <!-- 数据库用户名 -->
     <username>root</username>
     <!-- 数据库密码 -->
