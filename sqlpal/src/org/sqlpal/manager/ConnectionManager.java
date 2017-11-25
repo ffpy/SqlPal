@@ -52,6 +52,6 @@ public class ConnectionManager {
      */
     public static void freeConnection() throws SQLException {
         Connection connection = usedConnections.remove(Thread.currentThread().getId());
-        connection.close();
+        if (connection != null) connection.close();
     }
 }
