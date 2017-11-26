@@ -3,7 +3,6 @@ package org.sqlpal.crud;
 import org.sqlpal.common.ModelField;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.EmptyUtils;
-import org.sqlpal.util.SqlUtils;
 import org.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 
@@ -56,7 +55,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
 
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlUtils.update(model.getTableName(), conditions[0], allFields));
+                return connection.prepareStatement(SqlFactory.update(model.getTableName(), conditions[0], allFields));
             }
 
             @Override
@@ -78,7 +77,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
 
     @Override
     public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-        return connection.prepareStatement(SqlUtils.update(model.getTableName(), primaryKeyFields, updatedFields));
+        return connection.prepareStatement(SqlFactory.update(model.getTableName(), primaryKeyFields, updatedFields));
     }
 
     @Override

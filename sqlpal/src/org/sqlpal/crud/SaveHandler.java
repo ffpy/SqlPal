@@ -3,7 +3,6 @@ package org.sqlpal.crud;
 import org.sqlpal.common.ModelField;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.EmptyUtils;
-import org.sqlpal.util.SqlUtils;
 import org.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 
@@ -50,7 +49,7 @@ class SaveHandler extends DefaultExecuteCallback<Integer> {
 
     @Override
     public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-        return connection.prepareStatement(SqlUtils.insert(model.getTableName(), allFields), Statement.RETURN_GENERATED_KEYS);
+        return connection.prepareStatement(SqlFactory.insert(model.getTableName(), allFields), Statement.RETURN_GENERATED_KEYS);
     }
 
     @Override

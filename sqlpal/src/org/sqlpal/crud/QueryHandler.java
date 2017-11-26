@@ -1,9 +1,7 @@
 package org.sqlpal.crud;
 
 import org.sqlpal.manager.ModelManager;
-import org.sqlpal.manager.TableNameManager;
 import org.sqlpal.util.EmptyUtils;
-import org.sqlpal.util.SqlUtils;
 import org.sqlpal.util.StatementUtils;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
@@ -74,8 +72,8 @@ class QueryHandler {
         List<T> list = new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlUtils.find(
-                        TableNameManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
+                return connection.prepareStatement(SqlFactory.find(
+                        ModelManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
             }
 
             @Override
@@ -115,8 +113,8 @@ class QueryHandler {
         return new DataHandler().execute(new DefaultExecuteCallback<T>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlUtils.find(
-                        TableNameManager.getTableName(modelClass), columns, conditions, null, 0, 0));
+                return connection.prepareStatement(SqlFactory.find(
+                        ModelManager.getTableName(modelClass), columns, conditions, null, 0, 0));
             }
 
             @Override

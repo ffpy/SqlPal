@@ -16,10 +16,8 @@ public class SqlPal {
         ConfigManager.init(configFilename);
         ConnectionManager.init(connectionFactory);
         ClassManager.init();
-        TableNameManager.init();
         ModelManager.init();
-
-        ClassManager.destroy();
+        ModelManager.init();
     }
 
     /**
@@ -27,10 +25,11 @@ public class SqlPal {
      */
     public static void destroy() {
         try {
-            ConfigManager.destroy();
-            ConnectionManager.destroy();
-            TableNameManager.destroy();
             ModelManager.destroy();
+            ModelManager.destroy();
+            ClassManager.destroy();
+            ConnectionManager.destroy();
+            ConfigManager.destroy();
         } catch (SQLException e) {
             e.printStackTrace();
         }

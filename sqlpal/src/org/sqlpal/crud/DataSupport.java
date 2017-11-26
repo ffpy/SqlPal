@@ -1,7 +1,7 @@
 package org.sqlpal.crud;
 
-import org.sqlpal.manager.TableNameManager;
 import com.sun.istack.internal.NotNull;
+import org.sqlpal.manager.ModelManager;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,7 +17,7 @@ public abstract class DataSupport {
      * 获取表名
      */
     public String getTableName() {
-        return TableNameManager.getTableName(getClass());
+        return ModelManager.getTableName(getClass());
     }
 
     /**

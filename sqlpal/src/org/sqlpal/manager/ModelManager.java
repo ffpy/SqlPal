@@ -2,6 +2,7 @@ package org.sqlpal.manager;
 
 import org.sqlpal.annotation.AutoIncrement;
 import org.sqlpal.annotation.PrimaryKey;
+import org.sqlpal.annotation.Table;
 import org.sqlpal.config.Config;
 import org.sqlpal.common.ModelField;
 import org.sqlpal.exception.ConfigurationException;
@@ -20,8 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 模型管理器
  */
 public class ModelManager {
-    private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyNamesMap;     // 模型类对应的主键
+    private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyNamesMap;     // 表名对应的主键
     private static ConcurrentHashMap<String, String> autoIncrementMap;                  // 模型类对应的自增字段
+    private static ConcurrentHashMap<String, String> tableNameMap;                          // 模型类对应的表名
 
     /**
      * 初始化字段信息
@@ -29,13 +31,23 @@ public class ModelManager {
     public static void init() {
         primaryKeyNamesMap = new ConcurrentHashMap<>();
         autoIncrementMap = new ConcurrentHashMap<>();
+        tableNameMap = new ConcurrentHashMap<>();
 
         Config config = ConfigManager.getConfig();
         for (String className : config.getMapping()) {
             Class<?> cls = ClassManager.getClass(className);
+
+            // 获取Model类的表名
+            Table annotation = cls.getAnnotation(Table.class);
+            if (annotation == null) {
+                throw new ConfigurationException("请为" + className + "添加TableName注解以指定表名");
+            }
+            String tableName = annotation.name();
+            tableNameMap.put(className, tableName);
+
+            // 获取Model类的主键字段
             ArrayList<String> primaryKeyNames = new ArrayList<>();
             Field[] fields = cls.getDeclaredFields();
-
             for (Field field : fields) {
                 field.setAccessible(true);
                 if (!isSupportedField(field)) continue;
@@ -48,11 +60,9 @@ public class ModelManager {
                     autoIncrementMap.put(className, field.getName());
                 }
             }
-
             if (primaryKeyNames.isEmpty()) {
                 throw new ConfigurationException("找不到主键，请为" + className + "添加PrimaryKey注解以指定主键");
             }
-
             primaryKeyNamesMap.put(className, primaryKeyNames);
         }
     }
@@ -68,6 +78,10 @@ public class ModelManager {
         if (autoIncrementMap != null) {
             autoIncrementMap.clear();
             autoIncrementMap = null;
+        }
+        if (tableNameMap != null) {
+            tableNameMap.clear();
+            tableNameMap = null;
         }
     }
 
@@ -223,6 +237,21 @@ public class ModelManager {
      */
     public static String getAutoIncrement(@NotNull Class<? extends DataSupport> modelClass) {
         return autoIncrementMap.get(modelClass.getName());
+    }
+
+    /**
+     * 获取Model类所映射的表名
+     * @param modelClass Model类的Class
+     * @return 返回表名
+     * @throws ConfigurationException 初始化错误
+     */
+    public static String getTableName(Class<? extends DataSupport> modelClass) throws ConfigurationException {
+        String tableName = tableNameMap.get(modelClass.getName());
+        if (tableName == null) {
+            throw new ConfigurationException("找不到表名，请把" + modelClass.getName() + "添加到" +
+                    ConfigManager.getConfigFilename() + "的mapping中");
+        }
+        return tableName;
     }
 
     /**

@@ -1,15 +1,16 @@
-package org.sqlpal.util;
+package org.sqlpal.crud;
 
 import org.sqlpal.common.ModelField;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import org.sqlpal.util.EmptyUtils;
 
 import java.util.List;
 
 /**
- * SQL语句工具类
+ * SQL语句工厂类
  */
-public class SqlUtils {
+public class SqlFactory {
 
     /**
      * 创建插入语句
@@ -17,7 +18,7 @@ public class SqlUtils {
      * @param fields 要插入的字段列表
      * @return 返回插入语句
      */
-    public static String insert(@NotNull String tableName, @NotNull List<ModelField> fields) {
+    static String insert(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtils.isEmpty(tableName) || fields.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
@@ -44,7 +45,7 @@ public class SqlUtils {
      * @param fields 要查找的字段列表，用and连接
      * @return 返回删除语句
      */
-    public static String delete(@NotNull String tableName, @NotNull List<ModelField> fields) {
+    static String delete(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtils.isEmpty(tableName) || fields.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
         for (ModelField bean : fields) {
@@ -61,7 +62,7 @@ public class SqlUtils {
      * @param where where条件
      * @return 返回删除语句
      */
-    public static String delete(@NotNull String tableName, @Nullable String where) {
+    static String delete(@NotNull String tableName, @Nullable String where) {
         if (EmptyUtils.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(tableName);
@@ -78,7 +79,7 @@ public class SqlUtils {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    public static String update(@NotNull String tableName, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> updatedFields) {
+    static String update(@NotNull String tableName, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtils.isEmpty(primaryKeyFields)) return "";
 
         StringBuilder where = new StringBuilder();
@@ -97,7 +98,7 @@ public class SqlUtils {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    public static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ModelField> updatedFields) {
+    static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtils.isEmpty(tableName) || EmptyUtils.isEmpty(where) || EmptyUtils.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
@@ -123,8 +124,8 @@ public class SqlUtils {
      * @param offset 偏移
      * @return 返回查询语句
      */
-    public static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
-                              @Nullable String[] orderBy, int limit, int offset) {
+    static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
+                       @Nullable String[] orderBy, int limit, int offset) {
         if (EmptyUtils.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
 
