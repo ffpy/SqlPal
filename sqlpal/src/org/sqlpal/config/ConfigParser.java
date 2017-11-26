@@ -25,7 +25,6 @@ public class ConfigParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         String value = content.toString();
         switch (qName) {
-            case "database": config.setDatabase(value); break;
             case "driver": config.setDriverName(value); break;
             case "url": config.setUrl(value); break;
             case "username": config.setUsername(value); break;

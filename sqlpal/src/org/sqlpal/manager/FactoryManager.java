@@ -13,13 +13,14 @@ public class FactoryManager {
     }
 
     private static void initSqlFactory(Config config) {
-        String database = config.getDatabase();
-        if (database != null) {
-            database = database.toLowerCase();
-            if (database.contains("access") || database.contains("sql server")) {
+        String driverName = config.getDriverName();
+        if (driverName != null) {
+            driverName = driverName.toLowerCase();
+            if (driverName.contains("sqlserver") || driverName.contains("odbc")) {
                 sqlFactory = new SQLServerSqlFactory();
             }
         }
+
         if (sqlFactory == null) sqlFactory = new SqlFactory();
     }
 
