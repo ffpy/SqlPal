@@ -2,7 +2,7 @@ package org.sqlpal.manager;
 
 import org.sqlpal.exception.ConfigurationException;
 import org.sqlpal.config.Config;
-import org.sqlpal.config.ConfigurationParser;
+import org.sqlpal.config.ConfigParser;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,7 +24,7 @@ public class ConfigManager {
     public static void init(String configFilename) throws ConfigurationException {
         ConfigManager.configFilename = configFilename;
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        ConfigurationParser handler = new ConfigurationParser();
+        ConfigParser handler = new ConfigParser();
         try {
             SAXParser parser = factory.newSAXParser();
             try {

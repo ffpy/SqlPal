@@ -1,4 +1,4 @@
-package org.sqlpal.crud;
+package org.sqlpal.crud.factory;
 
 import org.sqlpal.common.ModelField;
 import com.sun.istack.internal.NotNull;
@@ -8,7 +8,7 @@ import org.sqlpal.util.EmptyUtils;
 import java.util.List;
 
 /**
- * SQL语句工厂类
+ * SQL语句工厂类基类
  */
 public class SqlFactory {
 
@@ -18,7 +18,7 @@ public class SqlFactory {
      * @param fields 要插入的字段列表
      * @return 返回插入语句
      */
-    static String insert(@NotNull String tableName, @NotNull List<ModelField> fields) {
+    public String insert(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtils.isEmpty(tableName) || fields.isEmpty()) return "";
 
         StringBuilder sql = new StringBuilder();
@@ -45,7 +45,7 @@ public class SqlFactory {
      * @param fields 要查找的字段列表，用and连接
      * @return 返回删除语句
      */
-    static String delete(@NotNull String tableName, @NotNull List<ModelField> fields) {
+    public String delete(@NotNull String tableName, @NotNull List<ModelField> fields) {
         if (EmptyUtils.isEmpty(tableName) || fields.isEmpty()) return "";
         StringBuilder where = new StringBuilder();
         for (ModelField bean : fields) {
@@ -62,7 +62,7 @@ public class SqlFactory {
      * @param where where条件
      * @return 返回删除语句
      */
-    static String delete(@NotNull String tableName, @Nullable String where) {
+    public String delete(@NotNull String tableName, @Nullable String where) {
         if (EmptyUtils.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(tableName);
@@ -79,7 +79,7 @@ public class SqlFactory {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    static String update(@NotNull String tableName, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> updatedFields) {
+    public String update(@NotNull String tableName, @NotNull List<ModelField> primaryKeyFields, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtils.isEmpty(primaryKeyFields)) return "";
 
         StringBuilder where = new StringBuilder();
@@ -98,7 +98,7 @@ public class SqlFactory {
      * @param updatedFields 要更新的字段
      * @return 返回更新语句
      */
-    static String update(@NotNull String tableName, @NotNull String where, @NotNull List<ModelField> updatedFields) {
+    public String update(@NotNull String tableName, @NotNull String where, @NotNull List<ModelField> updatedFields) {
         if (EmptyUtils.isEmpty(tableName) || EmptyUtils.isEmpty(where) || EmptyUtils.isEmpty(updatedFields)) return "";
 
         StringBuilder sql = new StringBuilder();
@@ -124,8 +124,8 @@ public class SqlFactory {
      * @param offset 偏移
      * @return 返回查询语句
      */
-    static String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
-                       @Nullable String[] orderBy, int limit, int offset) {
+    public String find(@NotNull String tableName, @Nullable String[] columns, @Nullable String[] conditions,
+                                @Nullable String[] orderBy, int limit, int offset) {
         if (EmptyUtils.isEmpty(tableName)) return "";
         StringBuilder sql = new StringBuilder();
 
@@ -157,14 +157,14 @@ public class SqlFactory {
             sql.deleteCharAt(sql.length() - 1);
         }
 
-        // limit
         if (limit > 0) {
+            // limit
             sql.append(" LIMIT ").append(limit);
-        }
 
-        // offset
-        if (limit > 0 && offset > 0) {
-            sql.append(" OFFSET ").append(offset);
+            // offset
+            if (offset > 0) {
+                sql.append(" OFFSET ").append(offset);
+            }
         }
 
         return sql.toString();

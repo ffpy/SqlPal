@@ -1,6 +1,8 @@
 package org.sqlpal.crud;
 
 import org.sqlpal.common.ModelField;
+import org.sqlpal.crud.factory.SqlFactory;
+import org.sqlpal.manager.FactoryManager;
 import org.sqlpal.util.EmptyUtils;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.StatementUtils;
@@ -49,7 +51,7 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
         Integer row = new DataHandler().execute(new DefaultExecuteCallback<Integer>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlFactory.delete(
+                return connection.prepareStatement(FactoryManager.getSqlFactory().delete(
                         ModelManager.getTableName(modelClass), conditions.length > 0 ? conditions[0] : null));
             }
 
@@ -71,7 +73,7 @@ class DeleteHandler extends DefaultExecuteCallback<Integer> {
 
     @Override
     public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-        return connection.prepareStatement(SqlFactory.delete(model.getTableName(), primaryKeyFields));
+        return connection.prepareStatement(FactoryManager.getSqlFactory().delete(model.getTableName(), primaryKeyFields));
     }
 
     @Override

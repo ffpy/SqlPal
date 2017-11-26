@@ -14,10 +14,12 @@ public class SqlPal {
      */
     public static void init(String configFilename, ConnectionFactory connectionFactory) {
         ConfigManager.init(configFilename);
+        FactoryManager.init();
         ConnectionManager.init(connectionFactory);
         ClassManager.init();
         ModelManager.init();
-        ModelManager.init();
+
+        ClassManager.destroy();
     }
 
     /**
@@ -26,9 +28,8 @@ public class SqlPal {
     public static void destroy() {
         try {
             ModelManager.destroy();
-            ModelManager.destroy();
-            ClassManager.destroy();
             ConnectionManager.destroy();
+            FactoryManager.destroy();
             ConfigManager.destroy();
         } catch (SQLException e) {
             e.printStackTrace();

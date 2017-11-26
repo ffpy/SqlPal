@@ -6,12 +6,21 @@ import java.util.ArrayList;
  * 配置信息
  */
 public class Config {
+    private String database;            // 数据库
     private String driverName;          // 驱动程序名
     private String url;                 // 连接地址
     private String username;            // 用户名
     private String password;            // 密码
     private int maxBatchCount = 10000;  // 批处理最大数量
     private ArrayList<String> mapping = new ArrayList<>();  // mapping列表
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
 
     public String getDriverName() {
         return driverName;

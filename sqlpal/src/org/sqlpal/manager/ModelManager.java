@@ -8,6 +8,7 @@ import org.sqlpal.common.ModelField;
 import org.sqlpal.exception.ConfigurationException;
 import org.sqlpal.crud.DataSupport;
 import com.sun.istack.internal.NotNull;
+import org.sqlpal.util.EmptyUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -21,15 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * 模型管理器
  */
 public class ModelManager {
-    private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyNamesMap;     // 表名对应的主键
+    private static ConcurrentHashMap<String, ArrayList<String>> primaryKeyColumnsMap;   // 表名对应的主键列
     private static ConcurrentHashMap<String, String> autoIncrementMap;                  // 模型类对应的自增字段
-    private static ConcurrentHashMap<String, String> tableNameMap;                          // 模型类对应的表名
+    private static ConcurrentHashMap<String, String> tableNameMap;                      // 模型类对应的表名
 
     /**
      * 初始化字段信息
      */
     public static void init() {
-        primaryKeyNamesMap = new ConcurrentHashMap<>();
+        primaryKeyColumnsMap = new ConcurrentHashMap<>();
         autoIncrementMap = new ConcurrentHashMap<>();
         tableNameMap = new ConcurrentHashMap<>();
 
@@ -43,6 +44,9 @@ public class ModelManager {
                 throw new ConfigurationException("请为" + className + "添加TableName注解以指定表名");
             }
             String tableName = annotation.name();
+            if (EmptyUtils.isEmpty(tableName)) {
+                throw new ConfigurationException(className + "的表名不能为空");
+            }
             tableNameMap.put(className, tableName);
 
             // 获取Model类的主键字段
@@ -63,7 +67,7 @@ public class ModelManager {
             if (primaryKeyNames.isEmpty()) {
                 throw new ConfigurationException("找不到主键，请为" + className + "添加PrimaryKey注解以指定主键");
             }
-            primaryKeyNamesMap.put(className, primaryKeyNames);
+            primaryKeyColumnsMap.put(tableName, primaryKeyNames);
         }
     }
 
@@ -71,9 +75,9 @@ public class ModelManager {
      * 销毁
      */
     public static void destroy() {
-        if (primaryKeyNamesMap != null) {
-            primaryKeyNamesMap.clear();
-            primaryKeyNamesMap = null;
+        if (primaryKeyColumnsMap != null) {
+            primaryKeyColumnsMap.clear();
+            primaryKeyColumnsMap = null;
         }
         if (autoIncrementMap != null) {
             autoIncrementMap.clear();
@@ -86,12 +90,21 @@ public class ModelManager {
     }
 
     /**
-     * 获取主键列表
+     * 获取主键名列表
+     * @param tableName 表名
+     * @return 返回主键列表
+     */
+    public static ArrayList<String> getPrimaryKeyColumns(String tableName) {
+        return primaryKeyColumnsMap.get(tableName);
+    }
+
+    /**
+     * 获取主键名列表
      * @param modelClass 要获取的Model类的Class
      * @return 返回主键列表
      */
-    public static ArrayList<String> getPrimaryKeyNames(Class<? extends DataSupport> modelClass) {
-        return primaryKeyNamesMap.get(modelClass.getName());
+    public static ArrayList<String> getPrimaryKeyColumns(Class<? extends DataSupport> modelClass) {
+        return primaryKeyColumnsMap.get(getTableName(modelClass));
     }
 
     /**
@@ -164,7 +177,7 @@ public class ModelManager {
     public static void getPrimaryKeyFields(@NotNull DataSupport model, @NotNull List<ModelField> primaryKeyFields) {
         primaryKeyFields.clear();
         Class<? extends DataSupport> cls = model.getClass();
-        for (String name : getPrimaryKeyNames(cls)) {
+        for (String name : getPrimaryKeyColumns(cls)) {
             try {
                 Field field = cls.getDeclaredField(name);
                 field.setAccessible(true);

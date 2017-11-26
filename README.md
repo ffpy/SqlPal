@@ -35,6 +35,8 @@ SqlPal.destroy();
 ```
 <?xml version="1.0" encoding="utf-8" ?>
 <sqlpal>
+    <!-- 数据库 -->
+    <database>mysql</database>
     <!-- 驱动程序名 -->
     <driver>com.mysql.jdbc.Driver</driver>
     <!-- 连接数据库的URL -->

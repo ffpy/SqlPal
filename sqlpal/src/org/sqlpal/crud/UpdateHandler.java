@@ -1,6 +1,8 @@
 package org.sqlpal.crud;
 
 import org.sqlpal.common.ModelField;
+import org.sqlpal.crud.factory.SqlFactory;
+import org.sqlpal.manager.FactoryManager;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.EmptyUtils;
 import org.sqlpal.util.StatementUtils;
@@ -55,7 +57,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
 
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlFactory.update(model.getTableName(), conditions[0], allFields));
+                return connection.prepareStatement(FactoryManager.getSqlFactory().update(model.getTableName(), conditions[0], allFields));
             }
 
             @Override
@@ -77,7 +79,7 @@ class UpdateHandler extends DefaultExecuteCallback<Integer> {
 
     @Override
     public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-        return connection.prepareStatement(SqlFactory.update(model.getTableName(), primaryKeyFields, updatedFields));
+        return connection.prepareStatement(FactoryManager.getSqlFactory().update(model.getTableName(), primaryKeyFields, updatedFields));
     }
 
     @Override

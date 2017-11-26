@@ -7,7 +7,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * 配置文件XML处理器
  */
-public class ConfigurationParser extends DefaultHandler {
+public class ConfigParser extends DefaultHandler {
     private Config config = new Config();
     private StringBuilder content = new StringBuilder();
 
@@ -25,6 +25,7 @@ public class ConfigurationParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         String value = content.toString();
         switch (qName) {
+            case "database": config.setDatabase(value); break;
             case "driver": config.setDriverName(value); break;
             case "url": config.setUrl(value); break;
             case "username": config.setUsername(value); break;

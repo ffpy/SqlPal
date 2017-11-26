@@ -26,8 +26,10 @@ public class ConnectionManager {
      * 关闭所有连接
      */
     public static void destroy() throws SQLException {
-        mConnectionFactory.destroy();
-        mConnectionFactory = null;
+        if (mConnectionFactory != null) {
+            mConnectionFactory.destroy();
+            mConnectionFactory = null;
+        }
     }
 
     /**

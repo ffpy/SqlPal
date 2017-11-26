@@ -1,6 +1,8 @@
 package org.sqlpal.crud;
 
 import org.sqlpal.common.ModelField;
+import org.sqlpal.crud.factory.SqlFactory;
+import org.sqlpal.manager.FactoryManager;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.EmptyUtils;
 import org.sqlpal.util.StatementUtils;
@@ -49,7 +51,7 @@ class SaveHandler extends DefaultExecuteCallback<Integer> {
 
     @Override
     public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-        return connection.prepareStatement(SqlFactory.insert(model.getTableName(), allFields), Statement.RETURN_GENERATED_KEYS);
+        return connection.prepareStatement(FactoryManager.getSqlFactory().insert(model.getTableName(), allFields), Statement.RETURN_GENERATED_KEYS);
     }
 
     @Override

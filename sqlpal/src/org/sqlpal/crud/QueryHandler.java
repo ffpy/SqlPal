@@ -1,5 +1,6 @@
 package org.sqlpal.crud;
 
+import org.sqlpal.manager.FactoryManager;
 import org.sqlpal.manager.ModelManager;
 import org.sqlpal.util.EmptyUtils;
 import org.sqlpal.util.StatementUtils;
@@ -36,7 +37,7 @@ class QueryHandler {
      */
     <T extends DataSupport> T findLast(@NotNull Class<? extends DataSupport> modelClass, @Nullable String[] columns,
                                        @Nullable String[] conditions) throws SQLException {
-        ArrayList<String> primaryKeyNames = ModelManager.getPrimaryKeyNames(modelClass);
+        ArrayList<String> primaryKeyNames = ModelManager.getPrimaryKeyColumns(modelClass);
         String[] orderBy = new String[primaryKeyNames.size()];
         for (int i = 0; i < orderBy.length; i++) {
             orderBy[i] = primaryKeyNames.get(i) + " desc";
@@ -72,7 +73,7 @@ class QueryHandler {
         List<T> list = new DataHandler().execute(new DefaultExecuteCallback<List<T>>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlFactory.find(
+                return connection.prepareStatement(FactoryManager.getSqlFactory().find(
                         ModelManager.getTableName(modelClass), columns, conditions, orderBy, limit, offset));
             }
 
@@ -113,7 +114,7 @@ class QueryHandler {
         return new DataHandler().execute(new DefaultExecuteCallback<T>() {
             @Override
             public PreparedStatement onCreateStatement(Connection connection, DataSupport model) throws SQLException {
-                return connection.prepareStatement(SqlFactory.find(
+                return connection.prepareStatement(FactoryManager.getSqlFactory().find(
                         ModelManager.getTableName(modelClass), columns, conditions, null, 0, 0));
             }
 
