@@ -13,6 +13,14 @@ public class SqlPal {
      * 初始化
      */
     public static void init(String configFilename, ConnectionFactory connectionFactory) {
+        init(configFilename, connectionFactory, null);
+    }
+
+    /**
+     * 初始化
+     */
+    public static void init(String configFilename, ConnectionFactory connectionFactory, Logger logger) {
+        LoggerManager.init(logger);
         ConfigManager.init(configFilename);
         FactoryManager.init();
         ConnectionManager.init(connectionFactory);
@@ -20,6 +28,8 @@ public class SqlPal {
         ModelManager.init();
 
         ClassManager.destroy();
+
+        LoggerManager.info("SqlPal初始化完成");
     }
 
     /**
@@ -31,9 +41,11 @@ public class SqlPal {
             ConnectionManager.destroy();
             FactoryManager.destroy();
             ConfigManager.destroy();
+            LoggerManager.destroy();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        LoggerManager.info("SqlPal销毁完成");
     }
 
     /**
@@ -119,5 +131,21 @@ public class SqlPal {
      */
     public static Connection getConnection() {
         return ConnectionManager.getConnection();
+    }
+
+    /**
+     * 设置Logger的level
+     * @param level 要设置的level
+     */
+    public static void setLoggerLevel(int level) {
+        LoggerManager.setLevel(level);
+    }
+
+    /**
+     * 获取Logger的level
+     * @return 返回level
+     */
+    public static int getLoggerLevel() {
+        return LoggerManager.getLevel();
     }
 }

@@ -8,7 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
         // 初始化
-        SqlPal.init("sample/sqlpal.xml", new SimpleConnectionFactory());
+        SqlPal.init("sample/sqlpal.xml", new SimpleConnectionFactory(), new SqlPalLogger());
 //        SqlPal.init("sample/sqlpal.xml", new DbcpConnectionFactory());
 
         QueryTest.findAll();

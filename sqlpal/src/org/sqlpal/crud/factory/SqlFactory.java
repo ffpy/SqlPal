@@ -3,6 +3,7 @@ package org.sqlpal.crud.factory;
 import org.sqlpal.common.ModelField;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import org.sqlpal.manager.LoggerManager;
 import org.sqlpal.util.EmptyUtils;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class SqlFactory {
         sql.deleteCharAt(sql.length() - 1);
         sql.append(")");
 
+        LoggerManager.debug(sql);
         return sql.toString();
     }
 
@@ -69,6 +71,8 @@ public class SqlFactory {
         if (!EmptyUtils.isEmpty(where)) {
             sql.append(" WHERE ").append(where);
         }
+
+        LoggerManager.debug(sql);
         return sql.toString();
     }
 
@@ -111,6 +115,7 @@ public class SqlFactory {
 
         sql.append(" WHERE ").append(where);
 
+        LoggerManager.debug(sql);
         return sql.toString();
     }
 
@@ -167,6 +172,7 @@ public class SqlFactory {
             }
         }
 
+        LoggerManager.debug(sql);
         return sql.toString();
     }
 }
