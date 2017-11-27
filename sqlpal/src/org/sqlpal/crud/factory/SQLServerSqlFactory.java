@@ -2,6 +2,7 @@ package org.sqlpal.crud.factory;
 
 import com.sun.istack.internal.NotNull;
 import org.sqlpal.manager.ModelManager;
+import org.sqlpal.util.EmptyUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,11 +44,8 @@ public class SQLServerSqlFactory extends SqlFactory {
                 }
 
                 // where
-                List<String> conditionList = conditions == null ? new ArrayList<String>() : Arrays.asList(conditions);
-                columnList.add("RowNumber > " + offset);
-
-                conditions = new String[conditionList.size()];
-                conditionList.toArray(conditions);
+                if (conditions == null) conditions = new String[1];
+                conditions[0] = "RowNumber > " + offset + (EmptyUtils.isEmpty(conditions[0]) ? "" : (" AND (" + conditions[0] + ")"));
             }
         }
         return super.find(tableName, columns, conditions, orderBy, 0, 0);
