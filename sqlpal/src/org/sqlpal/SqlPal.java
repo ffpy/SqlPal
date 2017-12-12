@@ -57,10 +57,12 @@ public class SqlPal {
 
     /**
      * 结束事务
-     * @throws SQLException 数据库错误
      */
-    public static void end() throws SQLException {
-        ConnectionManager.freeConnection();
+    public static void end() {
+        try {
+            ConnectionManager.freeConnection();
+        } catch (SQLException ignored) {
+        }
     }
 
     /**

@@ -63,17 +63,12 @@ public class UpdateTest {
     public static void executeUpdate() {
         try {
             SqlPal.begin();
-            try {
-                int row = DataSupport.executeUpdate("delete from user where age < ?", "16");
-                System.out.println(row);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                SqlPal.end();
-            }
-
+            int row = DataSupport.executeUpdate("delete from user where age < ?", "16");
+            System.out.println(row);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            SqlPal.end();
         }
     }
 }

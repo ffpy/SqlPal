@@ -46,24 +46,19 @@ public class QueryTest {
     public static void executeQuery() {
         try {
             SqlPal.begin();
-            try {
-                Statement stmt = DataSupport.executeQuery("select * from user");
-                ResultSet rs = stmt.getResultSet();
-                while (rs.next()) {
-                    System.out.print(rs.getString("username") + " ");
-                    System.out.print(rs.getString("password") + " ");
-                    System.out.println(rs.getInt("age"));
-                }
-                rs.close();
-                stmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                SqlPal.end();
+            Statement stmt = DataSupport.executeQuery("select * from user");
+            ResultSet rs = stmt.getResultSet();
+            while (rs.next()) {
+                System.out.print(rs.getString("username") + " ");
+                System.out.print(rs.getString("password") + " ");
+                System.out.println(rs.getInt("age"));
             }
-
+            rs.close();
+            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            SqlPal.end();
         }
     }
 
