@@ -31,7 +31,7 @@ public class ConfigManager {
                 parser.parse(new File(configFilename), handler);
                 config = handler.getConfig();
             } catch (IOException e) {
-                throw new ConfigurationException("打开" + configFilename + "失败，请确保把文件放在项目根目录！", e);
+                throw new ConfigurationException("打开" + configFilename + "失败！", e);
             } catch (SAXException e) {
                 throw new ConfigurationException("解析" + configFilename + "出错！", e);
             }

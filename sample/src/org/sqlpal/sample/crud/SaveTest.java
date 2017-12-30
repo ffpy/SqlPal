@@ -1,6 +1,7 @@
 package org.sqlpal.sample.crud;
 
 import org.sqlpal.crud.DataSupport;
+import org.sqlpal.sample.model.News;
 import org.sqlpal.sample.model.User;
 
 import java.sql.SQLException;
@@ -26,10 +27,10 @@ public class SaveTest {
      * 批量存储
      */
     public static void saveAll() {
-        List<User> users = new ArrayList<>();
+        List<News> users = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            User user = new User("user" + i, "123", 15 + i);
-            users.add(user);
+            News news = new News(null, "title_" + i, "content_" + i);
+            users.add(news);
         }
         try {
             DataSupport.saveAll(users);

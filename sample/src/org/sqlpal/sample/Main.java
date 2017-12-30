@@ -11,7 +11,7 @@ public class Main {
         SqlPal.init("sample/sqlpal.xml", new SimpleConnectionFactory(), new SqlPalLogger());
 //        SqlPal.init("sample/sqlpal.xml", new DbcpConnectionFactory());
 
-        QueryTest.findAll();
+        SaveTest.saveAll();
 
         // 销毁
         SqlPal.destroy();

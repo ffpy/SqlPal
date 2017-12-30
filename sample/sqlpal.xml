@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<sqlpal>
-    <!-- 数据库 -->
-    <database>mysql</database>
+<sqlpal xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="sqlpal.xsd">
     <!-- 驱动程序名 -->
     <driver>com.mysql.jdbc.Driver</driver>
     <!-- 连接数据库的URL -->
